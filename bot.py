@@ -1,5 +1,6 @@
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from dotenv import load_dotenv
 import os
 PORT = int(os.environ.get('PORT', 5000))
 
@@ -8,8 +9,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-TOKEN = "1906815972:AAHziQSQdESMnC8fNRlkfJmrk3MUIp_mRFo"
-#TOKEN = os.getenv('TOKEN')
+load_dotenv()
+TOKEN = os.getenv('TOKEN')
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
