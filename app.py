@@ -1,9 +1,12 @@
 from flask import *
+import os
 
 # creates the flask app
 app = Flask(__name__)
+PORT = int(os.environ.get('PORT', 5000))
+TOKEN = os.getenv('TOKEN')
 
-@app.route('/')
+@app.route('/hello/', methods=['GET', 'POST'])
 def index():
     message = 'Test'
     # message = request.args.get('message')
@@ -16,3 +19,6 @@ def index():
     else:
         print(message)
         return 'Sent to telebot!'
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(TOKEN))
