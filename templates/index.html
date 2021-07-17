@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Telebot</title>
+    <!-- commenting out the vue portion as it does not work yet
+        <script src="src=https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    -->
+</head>
+
+<body>
+    <div id="app">
+        {{ message }}
+    </div>
+
+    <form id='form' action='/'>
+        <input name='message' type='text' placeholder='Type something here to get the telebot to return it!'>
+        <input type='submit' value='Submit'>
+    </form>
+
+    <!-- commenting out the vue portion as it does not work yet
+    <script>
+        // attaching new vue instance to the HTML element with the id 'app'
+        // can dynamically control that HTML element with JS using this vue instance
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: 'Hello Vue!'
+            }
+        })
+    </script>
+    -->
+
+</body>
+
+</html>
