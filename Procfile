@@ -1,2 +1,2 @@
-web: python wsgi.py & gunicorn wsgi:app & wait -n
+web: python wsgi.py ; gunicorn wsgi:app
 
