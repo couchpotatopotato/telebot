@@ -2,7 +2,6 @@ import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 import os
-from app import app
 PORT = int(os.environ.get('PORT', 5000))
 
 # Enable logging
