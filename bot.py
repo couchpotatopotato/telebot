@@ -2,6 +2,7 @@ import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 import os
+from app import message
 PORT = int(os.environ.get('PORT', 5000))
 
 # Enable logging
@@ -24,7 +25,10 @@ def help(update, context):
 
 def echo(update, context):
     """Echo the user message."""
-    update.message.reply_text(update.message.text)
+    # update.message.reply_text(update.message.text)
+
+    # instead of echoing the message, show message from app.py
+    update.message.reply_text(message)
 
 def error(update, context):
     """Log Errors caused by Updates."""
