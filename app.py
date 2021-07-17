@@ -3,8 +3,6 @@ import os
 
 # creates the flask app
 app = Flask(__name__)
-PORT = int(os.environ.get('PORT', 5000))
-TOKEN = os.getenv('TOKEN')
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
@@ -21,5 +19,5 @@ def index():
         return 'Sent to telebot!'
         
 @app.route('/')
-def index():
+def welcome():
     return "<h1>Welcome to our server !!</h1>"
