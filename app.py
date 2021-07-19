@@ -14,6 +14,7 @@ from telebot.credentials import bot_token, bot_user_name,URL
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
+update_queue = Queue()
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -64,8 +65,6 @@ def start_telebot():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    global update_queue
-    update_queue = Queue()
 
     dp = Dispatcher(bot, update_queue)
 
@@ -95,12 +94,13 @@ def start_telebot():
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
     update = Update.de_json(request.get_json(force=True), bot)
-    print("tele message recieved")
     chat_id = update.message.chat.id
     msg_id = update.message.message_id
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
     text = update.message.text.encode('utf-8').decode()
+    print(text + 'THIS IS THE MESSAGE')
+
 
     webhook(text)
 
