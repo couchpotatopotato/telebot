@@ -74,6 +74,8 @@ def set_webhook():
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
 
+    return 'webhook started'
+
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
     update = Update.de_json(request.get_json(force=True), bot)
