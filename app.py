@@ -11,6 +11,8 @@ from flask import Flask, json, request
 from telegram import Bot
 from telebot.credentials import bot_token, bot_user_name,URL
 
+from pprint import pprint
+
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
@@ -96,7 +98,8 @@ def respond():
 
 def webhook(update):
     update_queue.put(update)
-    print(list(update_queue.queue))
+    for object in list(update_queue.queue):
+        pprint())
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
