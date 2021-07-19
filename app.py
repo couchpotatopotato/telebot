@@ -13,6 +13,7 @@ from telebot.credentials import bot_token, bot_user_name,URL
 
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
+bot = Bot(token=TOKEN)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -63,8 +64,6 @@ def start_telebot():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    global bot
-    bot = Bot(token=TOKEN)
     global update_queue
     update_queue = Queue()
 
