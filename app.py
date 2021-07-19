@@ -57,18 +57,6 @@ def set_webhook():
     # something to let us know things work
     print("webhook STARTED")
 
-    if s:
-        return "webhook setup ok"
-    else:
-        return "webhook setup failed"
-
-
-def start_telebot():
-    """Start the bot."""
-    # Create the Updater and pass it your bot's token.
-    # Make sure to set use_context=True to use the new context based callbacks
-    # Post version 12 this will no longer be necessary
-
     dp = Dispatcher(bot, update_queue)
 
     # on different commands - answer in Telegram
@@ -85,14 +73,11 @@ def start_telebot():
      # Start the thread
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
-    
-    return 'webhook started'
-    # you might want to return dispatcher as well, 
-    # to stop it at server shutdown, or to register more handlers:
-    # return (update_queue, dispatcher)
 
-
-
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
@@ -103,7 +88,6 @@ def respond():
     # Telegram understands UTF-8, so encode text for unicode compatibility
     text = update.message.text.encode('utf-8').decode()
     bot.send_message("YOU just sent me " + text)
-
 
     webhook(text)
 
