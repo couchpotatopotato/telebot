@@ -99,7 +99,7 @@ def respond():
 def webhook(update):
     update_queue.put(update)
     for object in list(update_queue.queue):
-        pprint())
+        pprint(object.to_dict())
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
