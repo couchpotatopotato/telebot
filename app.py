@@ -49,7 +49,7 @@ def get_response(msg):
   
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
+    update = Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
     msg_id = update.message.message_id
     text = update.message.text.encode('utf-8').decode()
