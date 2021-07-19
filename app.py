@@ -37,7 +37,7 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-@app.before_first_request
+@app.after_request
 def start_telebot():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
