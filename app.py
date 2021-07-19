@@ -3,7 +3,7 @@ import logging
 from queue import Queue
 from threading import Thread
 from flask.templating import render_template
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispatcher
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispatcher, dispatcher
 from dotenv import load_dotenv
 from telegram.update import Update
 
@@ -14,7 +14,7 @@ from telebot.credentials import bot_token, bot_user_name,URL
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
-update_queue = Queue()
+dp = Dispatcher(bot, None, workers=0)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -61,7 +61,6 @@ def set_webhook():
     # something to let us know things work
     print("webhook STARTED")
 
-    dp = Dispatcher(bot, update_queue)
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
@@ -75,8 +74,8 @@ def set_webhook():
 
 
      # Start the thread
-    thread = Thread(target=dp.start, name='dispatcher')
-    thread.start()
+    # thread = Thread(target=dp.start, name='dispatcher')
+    # thread.start()
 
     if s:
         return "webhook setup ok"
@@ -98,7 +97,7 @@ def respond():
     return 'ok'
 
 def webhook(update):
-    update_queue.put(update)
+    dp.process_update(update)
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
