@@ -117,6 +117,6 @@ def index():
         print(message)
         return 'Sent to telebot!'
         
-@app.route('/')
+@app.route('/hi')
 def welcome():
     return "<h1>Welcome to THE CHONGSTERS server !!</h1>"
