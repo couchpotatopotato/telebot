@@ -29,20 +29,24 @@ load_dotenv()
 def start(update, context):
     """Send a message when the command /start is issued."""
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO START", reply_to_message_id=msg_id)
+    print('-----START FUNCTION-----')
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
 
 def help(update, context):
     """Send a message when the command /help is issued."""
+    print('-----HELP FUNCTION-----')
     update.message.reply_text('Help!')
 
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
 
 def echo(update, context):
     """Echo the user message."""
+    print('-----ECHO FUNCTION-----')
     update.message.reply_text(update.message.text)
 
 def error(update, context):
     """Log Errors caused by Updates."""
+    print('-----ERROR FUNCTION-----')
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
