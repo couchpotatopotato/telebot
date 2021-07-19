@@ -92,7 +92,7 @@ def respond():
 
 def webhook(update):
     update_queue.put(update)
-    print(list(update_queue))
+    print(list(update_queue.queue))
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
