@@ -54,7 +54,7 @@ app = Flask(__name__)
 def set_webhook():
     # we use the bot object to link the bot to our app which live
     # in the link provided by URL
-    s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
     # something to let us know things work
     print("webhook STARTED")
 
@@ -73,6 +73,8 @@ def set_webhook():
     # Start the thread
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
+
+    return 'webhook started'
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
