@@ -79,6 +79,7 @@ def set_webhook():
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
     update = Update.de_json(request.get_json(force=True), bot)
+    print(dict(update))
     # chat_id = update.message.chat.id
     # msg_id = update.message.message_id
 
@@ -92,6 +93,7 @@ def respond():
 
 def webhook(update):
     update_queue.put(update)
+    print(list(update_queue))
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
