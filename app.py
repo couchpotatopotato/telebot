@@ -28,14 +28,12 @@ load_dotenv()
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
-@run_async
 def start(update, context):
     """Send a message when the command /start is issued."""
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO START", reply_to_message_id=msg_id)
     print('-----START FUNCTION-----')
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
 
-@run_async
 def help(update, context):
     """Send a message when the command /help is issued."""
     print('-----HELP FUNCTION-----')
@@ -43,13 +41,11 @@ def help(update, context):
 
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
 
-@run_async
 def echo(update, context):
     """Echo the user message."""
     print('-----ECHO FUNCTION-----')
     update.message.reply_text(update.message.text)
 
-@run_async
 def error(update, context):
     """Log Errors caused by Updates."""
     print('-----ERROR FUNCTION-----')
@@ -70,7 +66,7 @@ def set_webhook():
 
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("start", dp.run_asyncstart))
     dp.add_handler(CommandHandler("help", help))
 
     # on noncommand i.e message - echo the message on Telegram
@@ -97,13 +93,12 @@ def respond():
     # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
 
     webhook(update)
+    dp.process_update(update)
 
     return 'ok'
 
 def webhook(update):
     update_queue.put(update)
-    for object in list(update_queue.queue):
-        pprint(object.to_dict())
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
