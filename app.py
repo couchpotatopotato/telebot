@@ -12,7 +12,7 @@ from telegram import Bot
 from telebot.credentials import bot_token, bot_user_name,URL
 
 PORT = int(os.environ.get('PORT', '8443'))
-TOKEN = os.getenv('TOKEN')
+TOKEN = bot_token
 bot = Bot(token=TOKEN)
 
 # Enable logging
@@ -117,6 +117,10 @@ def index():
         print(message)
         return 'Sent to telebot!'
         
-@app.route('/hi')
+@app.route('/')
 def welcome():
     return "<h1>Welcome to THE CHONGSTERS server !!</h1>"
+
+
+if __name__ == '__main__':
+   app.run(threaded=True)
