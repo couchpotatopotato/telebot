@@ -14,7 +14,7 @@ from telebot.credentials import bot_token, bot_user_name,URL
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot, None, workers=0)
+dp = Dispatcher(bot, None, workers=1)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
