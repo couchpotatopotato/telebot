@@ -66,6 +66,8 @@ def start_telebot():
     # log all errors
     dp.add_error_handler(error)
 
+    print("webhook STARTED")
+
      # Start the thread
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
@@ -89,7 +91,7 @@ def start_telebot():
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
     update = Update.de_json(request.get_json(force=True), bot)
-
+    print("tele message recieved")
     chat_id = update.message.chat.id
     msg_id = update.message.message_id
 
