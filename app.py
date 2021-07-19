@@ -27,11 +27,14 @@ load_dotenv()
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
     """Send a message when the command /start is issued."""
+    bot.send_message("YOU ARE ASKING ME TO START")
+
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
+    bot.send_message("YOU ARE ASKING ME FOR HELP")
 
 def echo(update, context):
     """Echo the user message."""
@@ -99,7 +102,7 @@ def respond():
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
     text = update.message.text.encode('utf-8').decode()
-    print(text + 'THIS IS THE MESSAGE')
+    bot.send_message("YOU just sent me " + text)
 
 
     webhook(text)
