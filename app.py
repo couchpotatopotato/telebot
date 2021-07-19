@@ -93,7 +93,6 @@ def respond():
     # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
 
     webhook(update)
-    dp.process_update(update)
 
     return 'ok'
 
