@@ -15,7 +15,7 @@ from telebot.credentials import bot_token, bot_user_name,URL
 global bot
 global TOKEN
 TOKEN = bot_token
-bot = telegram.Bot(token=TOKEN)
+bot = Bot(token=TOKEN)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
