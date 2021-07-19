@@ -46,16 +46,6 @@ def error(update, context):
 app = Flask(__name__)
 
 @app.route('/setwebhook', methods=['GET', 'POST'])
-def set_webhook():
-    # we use the bot object to link the bot to our app which live
-    # in the link provided by URL
-    s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
-    # something to let us know things work
-    if s:
-        return "webhook setup ok"
-    else:
-        return "webhook setup failed"
-
 def start_telebot():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -80,14 +70,24 @@ def start_telebot():
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
     
-    return update_queue
+    return 'webhook started'
     # you might want to return dispatcher as well, 
     # to stop it at server shutdown, or to register more handlers:
     # return (update_queue, dispatcher)
 
+
+# def set_webhook():
+#     # we use the bot object to link the bot to our app which live
+#     # in the link provided by URL
+#     s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+#     # something to let us know things work
+#     if s:
+#         return "webhook setup ok"
+#     else:
+#         return "webhook setup failed"
+
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
-    start_telebot()
     update = Update.de_json(request.get_json(force=True), bot)
 
     chat_id = update.message.chat.id
