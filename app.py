@@ -24,6 +24,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 load_dotenv()
 
+
+
+
+
+
+
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
@@ -44,11 +50,24 @@ def error(update, context):
 
 
 
+    
+    
+    
+    
+    
+
+    
 # creates the flask app
 app = Flask(__name__)
 
 def get_response(msg):
-    return "hi"
+    updater = Updater(TOKEN, use_context=True)
+
+    dp = updater.dispatcher
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_error_handler(error)
   
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
