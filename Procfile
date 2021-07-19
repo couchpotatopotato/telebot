@@ -1,1 +1,1 @@
-web: gunicorn wsgi:run_please()
+web: gunicorn "wsgi:run_please()"
