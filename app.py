@@ -55,6 +55,8 @@ def start_telebot():
     global update_queue
     update_queue = Queue()
 
+    s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+
     dp = Dispatcher(bot, update_queue)
 
     # on different commands - answer in Telegram
@@ -77,17 +79,6 @@ def start_telebot():
     # you might want to return dispatcher as well, 
     # to stop it at server shutdown, or to register more handlers:
     # return (update_queue, dispatcher)
-
-
-# def set_webhook():
-#     # we use the bot object to link the bot to our app which live
-#     # in the link provided by URL
-#     s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
-#     # something to let us know things work
-#     if s:
-#         return "webhook setup ok"
-#     else:
-#         return "webhook setup failed"
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
