@@ -11,8 +11,11 @@ from flask import Flask, json, request
 from telegram import Bot
 from telebot.credentials import bot_token, bot_user_name,URL
 
-PORT = int(os.environ.get('PORT', '8443'))
+
+global bot
+global TOKEN
 TOKEN = bot_token
+bot = telegram.Bot(token=TOKEN)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
