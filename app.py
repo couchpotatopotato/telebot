@@ -44,67 +44,27 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-@app.route('/setwebhook', methods=['GET', 'POST'])
-def start_telebot():
-    """Start the bot."""
-    # Create the Updater and pass it your bot's token.
-    # Make sure to set use_context=True to use the new context based callbacks
-    # Post version 12 this will no longer be necessary
-    global bot
-    bot = Bot(token=TOKEN)
-    global update_queue
-    update_queue = Queue()
-
-    dp = Dispatcher(bot, update_queue)
-
-    # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
-
-    # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
-
-    # log all errors
-    dp.add_error_handler(error)
-
-    print("webhook STARTED")
-
-     # Start the thread
-    thread = Thread(target=dp.start, name='dispatcher')
-    thread.start()
-    
-    return 'webhook started'
-    # you might want to return dispatcher as well, 
-    # to stop it at server shutdown, or to register more handlers:
-    # return (update_queue, dispatcher)
-
-
-# def set_webhook():
-#     # we use the bot object to link the bot to our app which live
-#     # in the link provided by URL
-#     s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
-#     # something to let us know things work
-#     if s:
-#         return "webhook setup ok"
-#     else:
-#         return "webhook setup failed"
-
+def get_response(msg):
+    return "hi"
+  
 @app.route('/{}'.format(TOKEN), methods=['POST'])
-def respond(): 
-    update = Update.de_json(request.get_json(force=True), bot)
-    print("tele message recieved")
+def respond():
+    update = telegram.Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
     msg_id = update.message.message_id
-
-    # Telegram understands UTF-8, so encode text for unicode compatibility
     text = update.message.text.encode('utf-8').decode()
-
-    webhook(text)
-
+    print("got text message :", text)
+    response = get_response(text)
+    bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
     return 'ok'
 
-def webhook(update):
-    update_queue.put(update)
+@app.route('/setwebhook', methods=['GET', 'POST'])
+def set_webhook():
+    s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
