@@ -14,7 +14,8 @@ from telebot.credentials import bot_token, bot_user_name,URL
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot, None, workers=1)
+update_queue = Queue()
+dp = Dispatcher(bot, update_queue)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -69,14 +70,9 @@ def set_webhook():
     dp.add_error_handler(error)
 
 
-     # Start the thread
-    # thread = Thread(target=dp.start, name='dispatcher')
-    # thread.start()
-
-    if s:
-        return "webhook setup ok"
-    else:
-        return "webhook setup failed"
+    # Start the thread
+    thread = Thread(target=dp.start, name='dispatcher')
+    thread.start()
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
@@ -93,7 +89,7 @@ def respond():
     return 'ok'
 
 def webhook(update):
-    dp.process_update(update)
+    update_queue.put(update)
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
