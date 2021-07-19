@@ -1,10 +1,19 @@
-from flask import *
 import os
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from queue import Queue
+from threading import Thread
+from flask.templating import render_template
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispatcher
 from dotenv import load_dotenv
+from telegram.update import Update
 
-PORT = int(os.environ.get('PORT', 44))
+from flask import Flask, json, request
+from telegram import Bot
+from telebot.credentials import bot_token, bot_user_name,URL
+
+PORT = int(os.environ.get('PORT', '8443'))
+TOKEN = os.getenv('TOKEN')
+bot = Bot(token=TOKEN)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -12,7 +21,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 load_dotenv()
-TOKEN = os.getenv('TOKEN')
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
@@ -37,16 +45,26 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-@app.after_request
+@app.route('/setwebhook', methods=['GET', 'POST'])
+def set_webhook():
+    # we use the bot object to link the bot to our app which live
+    # in the link provided by URL
+    s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    # something to let us know things work
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
+
 def start_telebot():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(TOKEN, use_context=True)
+    global update_queue
+    update_queue = Queue()
 
-    # Get the dispatcher to register handlers
-    dp = updater.dispatcher
+    dp = Dispatcher(bot, update_queue)
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
@@ -58,16 +76,32 @@ def start_telebot():
     # log all errors
     dp.add_error_handler(error)
 
-    # Start the Bot
-    updater.start_webhook(listen="0.0.0.0",
-                          port=int(PORT),
-                          url_path=TOKEN,
-                          webhook_url='https://chong-testbot.herokuapp.com/' + TOKEN)
+     # Start the thread
+    thread = Thread(target=dp.start, name='dispatcher')
+    thread.start()
+    
+    return update_queue
+    # you might want to return dispatcher as well, 
+    # to stop it at server shutdown, or to register more handlers:
+    # return (update_queue, dispatcher)
 
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+@app.route('/{}'.format(TOKEN), methods=['POST'])
+def respond(): 
+    start_telebot()
+    update = Update.de_json(request.get_json(force=True), bot)
+
+    chat_id = update.message.chat.id
+    msg_id = update.message.message_id
+
+    # Telegram understands UTF-8, so encode text for unicode compatibility
+    text = update.message.text.encode('utf-8').decode()
+
+    webhook(text)
+
+    return 'ok'
+
+def webhook(update):
+    update_queue.put(update)
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
