@@ -87,7 +87,7 @@ def respond():
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
     text = update.message.text.encode('utf-8').decode()
-    bot.send_message("YOU just sent me " + text)
+    bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
 
     webhook(text)
 
