@@ -29,9 +29,7 @@ def start(update, context):
     """Send a message when the command /start is issued."""
     chat_id = update.message.chat.id
     msg_id = update.message.message_id
-    bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO START", reply_to_message_id=msg_id)
-
-
+    # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO START", reply_to_message_id=msg_id)
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
 
 def help(update, context):
@@ -40,7 +38,7 @@ def help(update, context):
     chat_id = update.message.chat.id
     msg_id = update.message.message_id
 
-    bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
+    # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
 
 def echo(update, context):
     """Echo the user message."""
@@ -93,7 +91,7 @@ def respond():
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
     text = update.message.text.encode('utf-8').decode()
-    bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
+    # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
 
     webhook(update)
 
