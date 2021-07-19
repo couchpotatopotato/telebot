@@ -27,16 +27,12 @@ load_dotenv()
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
     """Send a message when the command /start is issued."""
-    chat_id = update.message.chat.id
-    msg_id = update.message.message_id
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO START", reply_to_message_id=msg_id)
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
 
 def help(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
-    chat_id = update.message.chat.id
-    msg_id = update.message.message_id
 
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
 
@@ -85,11 +81,11 @@ def set_webhook():
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
     update = Update.de_json(request.get_json(force=True), bot)
-    chat_id = update.message.chat.id
-    msg_id = update.message.message_id
+    # chat_id = update.message.chat.id
+    # msg_id = update.message.message_id
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
-    text = update.message.text.encode('utf-8').decode()
+    # text = update.message.text.encode('utf-8').decode()
     # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
 
     webhook(update)
