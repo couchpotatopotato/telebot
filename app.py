@@ -86,3 +86,7 @@ def index():
 @app.route('/')
 def welcome():
     return "<h1>Welcome to THE CHONGSTERS server !!</h1>"
+  
+  
+if __name__ == '__main__':
+   app.run(threaded=True)
