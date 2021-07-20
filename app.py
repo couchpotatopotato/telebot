@@ -58,13 +58,6 @@ app = Flask(__name__)
 
 @app.route('/setwebhook', methods=['GET', 'POST'])
 def set_webhook():
-    # we use the bot object to link the bot to our app which live
-    # in the link provided by URL
-    bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
-    # something to let us know things work
-    print("webhook STARTED")
-
-
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
@@ -78,6 +71,12 @@ def set_webhook():
     # Start the thread
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
+
+    # we use the bot object to link the bot to our app which live
+    # in the link provided by URL
+    bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    # something to let us know things work
+    print("webhook STARTED")
 
     return 'webhook started'
 
@@ -115,4 +114,5 @@ def welcome():
 
 
 if __name__ == '__main__':
-   app.run(threaded=True)
+    set_webhook()
+    app.run(threaded=True)
