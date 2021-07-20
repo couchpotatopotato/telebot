@@ -18,6 +18,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
+chat_id = None
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -93,7 +94,6 @@ def respond():
     update_queue.put(update)
     
     # update the latest chat id
-    global chat_id
     chat_id = update.message.chat_id
 
     return 'good update'
