@@ -56,29 +56,28 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-def main():
-    
-    # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
+# def main():
+#     # on different commands - answer in Telegram
+#     dp.add_handler(CommandHandler("start", start))
+#     dp.add_handler(CommandHandler("help", help))
 
-    # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
+#     # on noncommand i.e message - echo the message on Telegram
+#     dp.add_handler(MessageHandler(Filters.text, echo))
 
-    # log all errors
-    dp.add_error_handler(error)
+#     # log all errors
+#     dp.add_error_handler(error)
 
-    # Start the thread
-    thread = Thread(target=dp.start, name='dispatcher')
-    thread.start()
+#     # Start the thread
+#     thread = Thread(target=dp.start, name='dispatcher')
+#     thread.start()
 
-    # we use the bot object to link the bot to our app which live
-    # in the link provided by URL
-    bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
-    # something to let us know things work
-    print("webhook STARTED")
+#     # we use the bot object to link the bot to our app which live
+#     # in the link provided by URL
+#     bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+#     # something to let us know things work
+#     print("webhook STARTED")
 
-    return 'webhook started'
+#     return 'webhook started'
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
@@ -114,5 +113,5 @@ def welcome():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
     app.run(threaded=True)
