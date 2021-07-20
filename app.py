@@ -17,7 +17,7 @@ PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
-
+dp = Dispatcher(bot, update_queue)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -57,7 +57,7 @@ def error(update, context):
 app = Flask(__name__)
 
 def main():
-    dp = Dispatcher(bot, update_queue)
+    
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
@@ -115,4 +115,4 @@ def welcome():
 
 if __name__ == '__main__':
     main()
-    # app.run(debug=True)
+    app.run(threaded=True)
