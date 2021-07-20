@@ -83,7 +83,7 @@ def respond():
     update = Update.de_json(request.get_json(), bot)
 
     if update.message == None:
-        return
+        return 'bad update'
 
     print(update.message.text + "--------------------------------------------------------")
     # Telegram understands UTF-8, so encode text for unicode compatibility
@@ -91,7 +91,7 @@ def respond():
 
     update_queue.put(update)
 
-    return 'ok'
+    return 'good update'
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
