@@ -46,7 +46,7 @@ def error(update, context):
 #FLASK APP
 app = Flask(__name__)
 
-def get_response(update):
+def get_response():
     dp.add_handler(CommandHandler("start", start_cmd))
     dp.add_handler(CommandHandler("help", help_cmd))
     dp.add_handler(MessageHandler(Filters.text, echo_cmd))
@@ -65,7 +65,6 @@ def set_webhook():
 def respond():
     update = Update.de_json(request.get_json(force=True), bot)
     update_queue.put(update)
-    response = get_response(update)
     return 'ok'
     #chat_id = update.message.chat.id
     #msg_id = update.message.message_id
