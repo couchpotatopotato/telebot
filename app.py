@@ -36,7 +36,7 @@ def start_cmd(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
 
-def hel_cmd(update, context):
+def help_cmd(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
 
