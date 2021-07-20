@@ -102,7 +102,7 @@ def respond():
 def sendmessage():
     message = request.args.get('message')
     
-    if chat_id == 0:
+    if not chat_id:
         return 'no one has messaged the bot yet'
     else:
         bot.send_message(chat_id, message)
