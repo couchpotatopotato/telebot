@@ -17,20 +17,14 @@ global TOKEN
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 load_dotenv()
-
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
 
 
-
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
+#COMMAND HANDLERS
 def start_cmd(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
@@ -49,8 +43,7 @@ def error(update, context):
     
     
 
-    
-# creates the flask app
+#FLASK APP
 app = Flask(__name__)
 
 def get_response(update):
@@ -62,17 +55,15 @@ def get_response(update):
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
     update = Update.de_json(request.get_json(force=True), bot)
-    chat_id = update.message.chat.id
-    msg_id = update.message.message_id
     update_queue.put(update)
-    
-    #text = update.message.text.encode('utf-8').decode()
-    #print("got text message :", text)
     response = get_response(update)
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
     return 'ok'
-
+    #chat_id = update.message.chat.id
+    #msg_id = update.message.message_id
+    #text = update.message.text.encode('utf-8').decode()
+    
 @app.route('/setwebhook', methods=['GET', 'POST'])
 def set_webhook():
     s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
