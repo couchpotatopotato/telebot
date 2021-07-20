@@ -70,6 +70,8 @@ def respond():
     #print("got text message :", text)
     response = get_response(update)
     bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
+    thread = Thread(target=dp.start, name='dispatcher')
+    thread.start()
     return 'ok'
 
 @app.route('/setwebhook', methods=['GET', 'POST'])
