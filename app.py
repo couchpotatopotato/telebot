@@ -92,12 +92,9 @@ def respond():
     # text = update.message.text.encode('utf-8').decode()
     # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
 
-    webhook(update)
+    update_queue.put(update)
 
     return 'ok'
-
-def webhook(update):
-    update_queue.put(update)
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
