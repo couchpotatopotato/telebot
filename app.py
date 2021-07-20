@@ -24,9 +24,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-
-
-
+update_queue = Queue()
+dp = Dispatcher(bot, update_queue)
 
 
 
@@ -47,12 +46,6 @@ def echo_cmd(update, context):
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
-
-
-
-    
-    
-    
     
     
 
@@ -60,9 +53,7 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-def get_response(text):
-    updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
+def get_response(update):
     dp.add_handler(CommandHandler("start", start_cmd))
     dp.add_handler(CommandHandler("help", help_cmd))
     dp.add_handler(MessageHandler(Filters.text, echo_cmd))
@@ -73,9 +64,11 @@ def respond():
     update = Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
     msg_id = update.message.message_id
-    text = update.message.text.encode('utf-8').decode()
-    print("got text message :", text)
-    response = get_response(text)
+    update_queue.put(update)
+    
+    #text = update.message.text.encode('utf-8').decode()
+    #print("got text message :", text)
+    response = get_response(update)
     bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
     return 'ok'
 
