@@ -32,15 +32,15 @@ load_dotenv()
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
-def start(update, context):
+def start_cmd(update, context):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
 
-def help(update, context):
+def hel_cmd(update, context):
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
 
-def echo(update, context):
+def echo_cmd(update, context):
     """Echo the user message."""
     update.message.reply_text(update.message.text)
 
@@ -60,12 +60,11 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-def get_response(msg):
+def get_response(text):
     updater = Updater(TOKEN, use_context=True)
-
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("start", start_cmd))
+    dp.add_handler(CommandHandler("help", help_cmd))
     dp.add_handler(MessageHandler(Filters.text, echo))
     dp.add_error_handler(error)
   
@@ -92,11 +91,9 @@ def set_webhook():
 def index():
     message = 'Test'
     # message = request.args.get('message')
-
     # if there is no message submitted via HTML form yet, return None
     if message is None:
         return render_template('index.html')
-
     # else return acknowledgement that message is received
     else:
         print(message)
