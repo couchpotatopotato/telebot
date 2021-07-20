@@ -32,7 +32,7 @@ def start(update, context):
     """Send a message when the command /start is issued."""
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO START", reply_to_message_id=msg_id)
     print('-----START FUNCTION-----')
-    update.message.reply_text('Hi! I\'m created by the WANKSTERS. \n I will just repeat what you say OKAY')
+    update.message.reply_text('Hi! I\'m created by THE CHONGSTERS. \n I will just repeat what you say OKAY')
 
 def help(update, context):
     """Send a message when the command /help is issued."""
@@ -83,13 +83,14 @@ def main():
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
     update = Update.de_json(request.get_json(), bot)
-    print(update.message.text + "--------------------------------------------------------")
-    # chat_id = update.message.chat.id
-    # msg_id = update.message.message_id
 
+    if update.message == None:
+        return
+
+    print(update.message.text + "--------------------------------------------------------")
     # Telegram understands UTF-8, so encode text for unicode compatibility
     # text = update.message.text.encode('utf-8').decode()
-    # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
+
     update_queue.put(update)
 
     return 'ok'
@@ -110,7 +111,7 @@ def index():
         
 @app.route('/')
 def welcome():
-    return "<h1>Welcome to THE CHONGSTERS server !!</h1>"
+    return "<h1>Welcome to THE CHONGSTERS server!!</h1>"
 
 
 if __name__ == '__main__':
