@@ -89,7 +89,7 @@ def respond():
     # text = update.message.text.encode('utf-8').decode()
     # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
 
-    update_queue.put(update, block=False)
+    update_queue.put(update, block=True, timeout=1)
 
     return 'ok'
 
