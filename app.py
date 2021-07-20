@@ -90,4 +90,6 @@ def welcome():
 
 
 if __name__ == '__main__':
-   app.run(threaded=True)
+    get_response()
+    set_webhook()
+    app.run(threaded=True)
