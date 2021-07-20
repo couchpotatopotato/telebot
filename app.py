@@ -74,11 +74,9 @@ def main():
 
     # we use the bot object to link the bot to our app which live
     # in the link provided by URL
-    bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
+    # bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
     # something to let us know things work
     print("---------------------------------------------webhook STARTED----------------------------------------------")
-
-    return 'webhook started'
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
