@@ -56,7 +56,7 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-def set_webhook():    
+def main():
     dp = Dispatcher(bot, update_queue)
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
@@ -114,5 +114,5 @@ def welcome():
 
 
 if __name__ == '__main__':
-    set_webhook()
-    app.run(debug=True)
+    main()
+    # app.run(debug=True)
