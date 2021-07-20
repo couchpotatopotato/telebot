@@ -56,7 +56,6 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-@app.route('/setwebhook', methods=['GET', 'POST'])
 def set_webhook():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
