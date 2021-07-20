@@ -51,26 +51,27 @@ def get_response(update):
     dp.add_handler(CommandHandler("help", help_cmd))
     dp.add_handler(MessageHandler(Filters.text, echo_cmd))
     dp.add_error_handler(error)
-  
-@app.route('/{}'.format(TOKEN), methods=['POST'])
-def respond():
-    update = Update.de_json(request.get_json(force=True), bot)
-    update_queue.put(update)
-    response = get_response(update)
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
-    return 'ok'
-    #chat_id = update.message.chat.id
-    #msg_id = update.message.message_id
-    #text = update.message.text.encode('utf-8').decode()
-    
-@app.route('/setwebhook', methods=['GET', 'POST'])
+
 def set_webhook():
     s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
     if s:
         return "webhook setup ok"
     else:
-        return "webhook setup failed"
+        return "webhook setup failed" 
+
+@app.route('/{}'.format(TOKEN), methods=['POST'])
+def respond():
+    update = Update.de_json(request.get_json(force=True), bot)
+    update_queue.put(update)
+    response = get_response(update)
+    return 'ok'
+    #chat_id = update.message.chat.id
+    #msg_id = update.message.message_id
+    #text = update.message.text.encode('utf-8').decode()
+    
+
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
