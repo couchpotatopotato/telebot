@@ -18,6 +18,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
+chat_id = None
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -78,6 +79,7 @@ def main():
     # something to let us know things work
     print("---------------------------------------------webhook STARTED----------------------------------------------")
 
+# processing requests made by user from telebot
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
     update = Update.de_json(request.get_json(), bot)
@@ -90,8 +92,22 @@ def respond():
     # text = update.message.text.encode('utf-8').decode()
 
     update_queue.put(update)
+    
+    # update the latest chat id
+    chat_id = update.message.chat_id
 
     return 'good update'
+
+@app.route('/sendmessage')
+def sendmessage():
+    message = request.args.get('message')
+    
+    if not chat_id:
+        return 'no one has messaged the bot yet'
+    else:
+        bot.send_message(chat_id, message)
+
+    
 
 @app.route('/hello/', methods=['GET', 'POST'])
 def index():
