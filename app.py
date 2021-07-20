@@ -75,7 +75,6 @@ def set_webhook():
     # log all errors
     dp.add_error_handler(error)
 
-
     # Start the thread
     thread = Thread(target=dp.start, name='dispatcher')
     thread.start()
@@ -84,7 +83,7 @@ def set_webhook():
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond(): 
-    update = Update.de_json(request.get_json(cache=False), bot)
+    update = Update.de_json(request.get_json(force=True), bot)
     # chat_id = update.message.chat.id
     # msg_id = update.message.message_id
 
