@@ -105,8 +105,8 @@ def sendmessage():
     if not chat_id:
         return 'no one has messaged the bot yet'
     else:
-        bot.send_message(chat_id, message)
-
+        bot.sendMessage(chat_id=chat_id, text=message)
+        return 'sent'
     
 
 @app.route('/hello/', methods=['GET', 'POST'])
