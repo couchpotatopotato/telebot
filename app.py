@@ -9,15 +9,14 @@ from telegram.update import Update
 
 from flask import Flask, json, request
 from telegram import Bot
-from telebot.credentials import bot_token, bot_user_name,URL
+from telebot.credentials import bot_token, bot_user_name, URL
 
 from pprint import pprint
 
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
-update_queue = Queue()
-dp = Dispatcher(bot, update_queue)
+
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -57,6 +56,9 @@ def error(update, context):
 app = Flask(__name__)
 
 def set_webhook():
+    global update_queue
+    update_queue = Queue()
+    dp = Dispatcher(bot, update_queue)
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
@@ -89,8 +91,7 @@ def respond():
     # Telegram understands UTF-8, so encode text for unicode compatibility
     # text = update.message.text.encode('utf-8').decode()
     # bot.sendMessage(chat_id=chat_id, text="YOU just sent me " + text, reply_to_message_id=msg_id)
-    update_queue.put_nowait(update)
-    # update_queue.put(update, block=True)
+    update_queue.put(update, block=True)
 
     return 'ok'
 
