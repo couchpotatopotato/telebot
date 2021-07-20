@@ -115,4 +115,4 @@ def welcome():
 
 if __name__ == '__main__':
     set_webhook()
-    app.run(threaded=True)
+    app.run(debug=True)
