@@ -18,7 +18,6 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-chat_id = None
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -94,6 +93,7 @@ def respond():
     update_queue.put(update)
     
     # update the latest chat id
+    global chat_id
     chat_id = update.message.chat_id
 
     return 'good update'
@@ -102,7 +102,7 @@ def respond():
 def sendmessage():
     message = request.args.get('message')
     
-    if not chat_id:
+    if chat_id == 0:
         return 'no one has messaged the bot yet'
     else:
         bot.send_message(chat_id, message)
