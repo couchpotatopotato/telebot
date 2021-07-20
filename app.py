@@ -16,6 +16,7 @@ from pprint import pprint
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
+update_queue = Queue()
 
 
 # Enable logging
@@ -55,9 +56,7 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
-def set_webhook():
-    global update_queue
-    update_queue = Queue()
+def set_webhook():    
     dp = Dispatcher(bot, update_queue)
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
