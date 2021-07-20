@@ -56,6 +56,7 @@ def error(update, context):
 # creates the flask app
 app = Flask(__name__)
 
+@app.before_first_request
 def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
@@ -113,5 +114,4 @@ def welcome():
 
 
 if __name__ == '__main__':
-    main()
     app.run(threaded=True)
