@@ -18,6 +18,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
+CHAT_ID = []
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -93,9 +94,7 @@ def respond():
     update_queue.put(update)
     
     # update the latest chat id
-    # need to store chat id in a database
-    global chat_id
-    chat_id = update.message.chat_id
+    CHAT_ID.append(update.message.chat_id)
 
     return 'good update'
 
@@ -104,11 +103,12 @@ def sendmessage():
     message = request.args.get('message')
     
     # text the latest person who has messaged the bot
-    if not chat_id:
+    if len(CHAT_ID) == 0 :
         return 'no one has messaged the bot yet'
     else:
-        bot.sendMessage(chat_id=chat_id, text=message)
-        return 'sent'
+        for chat_id in CHAT_ID:
+            bot.sendMessage(chat_id=chat_id, text=message)
+            return 'sent to' + len(CHAT_ID) + 'persons'
     
 
 @app.route('/hello/', methods=['GET', 'POST'])
