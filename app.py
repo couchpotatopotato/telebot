@@ -108,7 +108,7 @@ def sendmessage():
     else:
         for chat_id in CHAT_ID:
             bot.sendMessage(chat_id=chat_id, text=message)
-            return 'sent to' + len(CHAT_ID) + 'persons'
+            return 'sent to' + str(len(CHAT_ID)) + 'persons'
     
 
 @app.route('/hello/', methods=['GET', 'POST'])
