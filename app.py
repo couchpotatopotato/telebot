@@ -54,19 +54,19 @@ def error(update, context):
 
 def subscribe(update, context):
     """Add users to subscription list to allow sending of messages later"""
-    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.get(update.message.chat_id, False):
-        SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat_id] = update.message.from_user.username
-        update.message.reply_text(update.message.from_user.username + ' ' + update.message.chat_id + ' has been added to the subscription list!')
+    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.get(update.message.chat.id, False):
+        SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] = update.message.from_user.username
+        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' has been added to the subscription list!')
 
     else:
-        update.message.reply_text(update.message.from_user.username + ' ' + update.message.chat_id + ' is already in the subscription list!')
+        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' is already in the subscription list!')
 
 def unsubscribe(update, context):
     """Remove user from subscription list"""
-    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.pop(update.message.chat_id, False):
-        update.message.reply_text(update.message.from_user.username + ' ' + update.message.chat_id + ' is not in the subscription list!')
+    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.pop(update.message.chat.id, False):
+        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' is not in the subscription list!')
     else:
-        update.message.reply_text(update.message.from_user.username + ' ' + update.message.chat_id + ' has been removed from the subscription list!')
+        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' has been removed from the subscription list!')
 
 
 # creates the flask app
