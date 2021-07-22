@@ -18,7 +18,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-SUBSCRIPTION_CHAT_ID_TO_USERNAME = {}
+SUBSCRIPTION_CHAT_ID_TO_USERNAME = {}   # create dictionary storing chat_id and group title/username key-value pairs
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -55,18 +55,26 @@ def error(update, context):
 def subscribe(update, context):
     """Add users to subscription list to allow sending of messages later"""
     if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.get(update.message.chat.id, False):
-        SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] = update.message.from_user.username
-        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' has been added to the subscription list!')
+        # store group title/username for groups/private chat respectively as the value
+        SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] = update.message.chat.title if update.message.chat.type == 'group' else '@' + update.message.from_user.username
+        update.message.reply_text(SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] + ' has been added to the subscription list!')
 
     else:
-        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' is already in the subscription list!')
+        update.message.reply_text(SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] + ' is already in the subscription list!')
 
 def unsubscribe(update, context):
     """Remove user from subscription list"""
-    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.pop(update.message.chat.id, False):
-        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' is not in the subscription list!')
+    # check if group / private chat, and thus store group name / username respectively
+    if update.message.chat.type == 'group':
+        username_or_group = update.message.chat.title
     else:
-        update.message.reply_text(update.message.from_user.username + ' ' + str(update.message.chat.id) + ' has been removed from the subscription list!')
+        username_or_group = '@' + update.message.from_user.username
+
+    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.pop(update.message.chat.id, False):
+        # return group name / username not in subscription list
+        update.message.reply_text(username_or_group + ' is not in the subscription list!')
+    else:
+        update.message.reply_text(username_or_group + ' has been removed from the subscription list!')
 
 
 # creates the flask app
@@ -118,14 +126,14 @@ def sendmessage():
     
     # send the message to everyone in the subscription list
     if len(SUBSCRIPTION_CHAT_ID_TO_USERNAME) == 0 :
-        return 'no one has messaged the bot yet'
+        return 'no one has subscribed to the bot yet'
     else:
         for chat_id in SUBSCRIPTION_CHAT_ID_TO_USERNAME:
             bot.sendMessage(chat_id=chat_id, text=message)
         
         # print the subscription list after sending messages
         subscriptionlist = '\n'.join(SUBSCRIPTION_CHAT_ID_TO_USERNAME.values())
-        return 'sent to ' + str(len(SUBSCRIPTION_CHAT_ID_TO_USERNAME)) + ' persons\n' + subscriptionlist
+        return 'sent to ' + str(len(SUBSCRIPTION_CHAT_ID_TO_USERNAME)) + ' persons/groups\n' + subscriptionlist
     
 
 @app.route('/hello/', methods=['GET', 'POST'])
