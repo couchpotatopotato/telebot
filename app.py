@@ -18,7 +18,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-CHAT_ID = []
+SUBSCRIPTION_CHAT_ID_TO_USERNAME = {}
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -52,6 +52,17 @@ def error(update, context):
     print('-----ERROR FUNCTION-----')
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
+def subscribe(update, context):
+    """Add users to subscription list to allow sending of messages later"""
+    SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat_id] = update.message.from_user.username
+    update.message.reply_text(update.message.from_user.username + ' has been added to the subscription list!')
+
+def unsubscribe(update, context):
+    """Remove user from subscription list"""
+    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.pop(update.message.chat_id, False):
+        update.message.reply_text(update.message.from_user.username + ' is not in the subscription list!')
+    else:
+        update.message.reply_text(update.message.from_user.username + ' has been removed from the subscription list!')
 
 
 # creates the flask app
@@ -62,6 +73,8 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("subscribe", subscribe))
+    dp.add_handler(CommandHandler("unsubscribe", unsubscribe))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, echo))
@@ -92,9 +105,6 @@ def respond():
     # text = update.message.text.encode('utf-8').decode()
 
     update_queue.put(update)
-    
-    # update the latest chat id
-    CHAT_ID.append(update.message.chat_id)
 
     return 'good update'
 
@@ -102,13 +112,16 @@ def respond():
 def sendmessage():
     message = request.args.get('message')
     
-    # text the latest person who has messaged the bot
-    if len(CHAT_ID) == 0 :
+    # send the message to everyone in the subscription list
+    if len(SUBSCRIPTION_CHAT_ID_TO_USERNAME) == 0 :
         return 'no one has messaged the bot yet'
     else:
-        for chat_id in CHAT_ID:
+        for chat_id in SUBSCRIPTION_CHAT_ID_TO_USERNAME:
             bot.sendMessage(chat_id=chat_id, text=message)
-        return 'sent to ' + str(len(CHAT_ID)) + ' persons'
+        
+        # print the subscription list after sending messages
+        subscriptionlist = '\n'.join(SUBSCRIPTION_CHAT_ID_TO_USERNAME.values())
+        return 'sent to ' + str(len(SUBSCRIPTION_CHAT_ID_TO_USERNAME)) + ' persons\n' + subscriptionlist
     
 
 @app.route('/hello/', methods=['GET', 'POST'])
