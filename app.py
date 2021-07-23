@@ -3,8 +3,9 @@ import logging
 from queue import Queue
 from threading import Thread
 from flask.templating import render_template
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, ConversationHandler, Filters, Dispatcher, dispatcher
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, ConversationHandler, Filters, Dispatcher, dispatcher, messagehandler
 from dotenv import load_dotenv
+from telegram.message import Message
 from telegram.update import Update
 from flask_cors import CORS, cross_origin
 
@@ -21,7 +22,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-GET_QUESTION, SEND_QUESTION, STARTED = range(3)
+STORING_QUESTION, SUBSCRIBE_MEETINGID, UNSUBSCRIBE_MEETINGID, STARTED = range(4)
 # create dictionary storing chat_id and group title/username key-value pairs
 SUBSCRIPTION_CHAT_ID_TO_USERNAME = {}
 
@@ -77,40 +78,30 @@ def help(update, context):
 def ask(update, context):
     print('----------ASK FUNCTION-------------')
     update.message.reply_text('What is your question?')
-    return GET_QUESTION
+    return STORING_QUESTION
 
-def ask_getquestion(update, context):
-    print('-----getting the question-------')
+def ask_storequestion(update, context):
+    print('-----storing the question-------')
 
     # process through NLP
     # if repetitive, prompt the user and suggest that they subscribe to the other question
 
-    keyboard = [
-        [InlineKeyboardButton("Yes", callback_data=update.message.text)],
-        [InlineKeyboardButton("No", callback_data='2')],
-    ]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
     # options_yesno = {'inline_keyboard':
     #             [[{'text': 'Yes', 'callback_data': update.message.text}], [{'text': 'No', 'callback_data': '0'}]]}
-    bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=reply_markup)
+    # bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=reply_markup)
+    
+    # update the question into the database
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    print('conn done')
+    cur = conn.cursor()
+    print('cur done')
+    cur.execute('INSERT INTO questions (question_text) VALUES (%s)',
+                (update.message.text))
+    conn.commit()
+    cur.close()
+    conn.close()
 
-    return SEND_QUESTION
-
-def ask_sendquestion(update, context):
-    print('----------sending the question-----------')
-
-    update.callback_query.answer()
-
-    if update.callback_query.data != '0':
-        cur.execute('INSERT INTO questions (question_text) VALUES (%s)',
-                    (update.callback_query.data))
-        # check for errors
-        update.edit_message_text(text='Your message has been added!')
-    else:
-        ask(update)
-
+    update.message.reply_text(f'Your question "{update.message.text}" has been added!')
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -130,7 +121,6 @@ def subscribe(update, context):
     else:
         update.message.reply_text(
             SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] + ' is already in the subscription list!')
-
 
 def unsubscribe(update, context):
     """Remove user from subscription list"""
@@ -153,8 +143,6 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
-
-
 @app.before_first_request
 def main():
     # on different commands - answer in Telegram
@@ -164,16 +152,21 @@ def main():
                     fallbacks=[]
     ))
     dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(CommandHandler("subscribe", subscribe))
-    dp.add_handler(CommandHandler("unsubscribe", unsubscribe))
     dp.add_handler(ConversationHandler(
                     entry_points=[CommandHandler("ask", ask)],
-                    states={GET_QUESTION: [MessageHandler(Filters.text, ask_getquestion)],
-                            SEND_QUESTION: [CallbackQueryHandler(ask_sendquestion)]
-                    },
+                    states={STORING_QUESTION: [MessageHandler(Filters.text, ask_storequestion)]},
                     fallbacks=[]
     ))
-    
+    dp.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("subscribe", subscribe)],
+        states={SUBSCRIBE_MEETINGID: [MessageHandler(Filters.text, subscribe_meetingid)]},
+        fallbacks=[]
+    ))
+    dp.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("unsubscribe", unsubscribe)],
+        states={UNSUBSCRIBE_MEETINGID: [MessageHandler(Filters.text, unsubcribe_meetingid)]},
+        fallbacks=[]
+    ))
 
     # log all errors
     dp.add_error_handler(error)
@@ -189,8 +182,6 @@ def main():
     print("---------------------------------------------webhook STARTED----------------------------------------------")
 
 # processing requests made by user from telebot
-
-
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
     update = Update.de_json(request.get_json(), bot)
