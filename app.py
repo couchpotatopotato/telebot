@@ -44,7 +44,7 @@ def help(update, context):
 
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
 
-retrieved_data = [[]]
+retrieved_data = []
 def echo(update, context):
     """Echo the user message."""
     print('-----ECHO FUNCTION-----')
