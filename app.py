@@ -233,6 +233,7 @@ def answer():
     conn.commit()
     cur.close()
     conn.close()
+    return "ok"
 
 @app.route('/retrieve', methods=['GET', 'POST'])
 @cross_origin()
