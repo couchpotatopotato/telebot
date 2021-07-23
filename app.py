@@ -242,7 +242,6 @@ def retrieve():
     FROM subscriptions
     RIGHT JOIN questions on questions.question_id=subscriptions.question_id
     GROUP BY question_id""")
-    conn.commit()
     for row in cur.fetchall():
         dict = {}
         dict["question_id"] = row[0]
