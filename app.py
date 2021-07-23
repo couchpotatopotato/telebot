@@ -52,7 +52,6 @@ def error(update, context):
 def start(update, context):
     """Send a message and show the main menu when the command /start is issued."""
     update.message.reply_text('Welcome to the TeleAsk bot!')
-    start_other_handlers()
     time.sleep(0.5)
     update.message.reply_text('What is your meeting id?')
     return STARTED
@@ -61,29 +60,6 @@ def force_start(update, context):
     """If any other messages are shown, force the user to use /start"""
     update.message.reply_text('Use /start to start the bot.')
     return NOT_STARTED
-
-def start_other_handlers():
-    """Start the other handlers when /start is sent"""
-    dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(ConversationHandler(
-                    entry_points=[CommandHandler("ask", ask)],
-                    states={STORING_QUESTION: [MessageHandler(Filters.text, ask_storequestion)]},
-                    fallbacks=[]
-    ))
-    dp.add_handler(ConversationHandler(
-        entry_points=[CommandHandler("subscribe", subscribe)],
-        states={SUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, subscribe_questionid)]},
-        fallbacks=[]
-    ))
-    dp.add_handler(ConversationHandler(
-        entry_points=[CommandHandler("unsubscribe", unsubscribe)],
-        states={UNSUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, unsubscribe_questionid)]},
-        fallbacks=[]
-    ))
-    
-    # Start the thread
-    thread = Thread(target=dp.start, name='dispatcher')
-    thread.start()
 
 def start_meetingid(update,context):        # for more than 1 meetings
     meetingid = update.message.text
@@ -207,6 +183,22 @@ def main():
                     states={NOT_STARTED: [CommandHandler("start", start)],
                             STARTED: [MessageHandler(Filters.text, start_meetingid)]},
                     fallbacks=[]
+    ))
+    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(ConversationHandler(
+                    entry_points=[CommandHandler("ask", ask)],
+                    states={STORING_QUESTION: [MessageHandler(Filters.text, ask_storequestion)]},
+                    fallbacks=[]
+    ))
+    dp.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("subscribe", subscribe)],
+        states={SUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, subscribe_questionid)]},
+        fallbacks=[]
+    ))
+    dp.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("unsubscribe", unsubscribe)],
+        states={UNSUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, unsubscribe_questionid)]},
+        fallbacks=[]
     ))
 
     # log all errors
