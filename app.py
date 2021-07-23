@@ -82,7 +82,6 @@ def ask_sendquestion(update, context):
 
 def ask_getquestion(update, context):
     print('-----getting the question-------')
-    dp.remove_handler(MessageHandler(Filters.text, ask_getquestion))
 
     # ensure that there is a question
     question = update.message.text
