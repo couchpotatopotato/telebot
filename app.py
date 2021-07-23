@@ -13,6 +13,7 @@ from telebot.credentials import bot_token, bot_user_name, URL
 
 import mysql.connector
 import time
+import json
 
 # define variables
 PORT = int(os.environ.get('PORT', '8443'))
@@ -57,7 +58,7 @@ def help(update, context):
     '''
     update.message.reply_text(mainmenu)
     
-    
+    retrieved_data = []
     cur.execute("""SELECT questions.question_id, questions.question_text, questions.question_answer, 
     count(subscriptions.question_id) AS subscription_count 
     FROM subscriptions
