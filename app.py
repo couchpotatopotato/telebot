@@ -44,6 +44,7 @@ def help(update, context):
 
     # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
 
+retrieved_data = [[]]
 def echo(update, context):
     """Echo the user message."""
     print('-----ECHO FUNCTION-----')
@@ -59,6 +60,10 @@ def echo(update, context):
     cur.execute('SELECT * FROM questions')
     for row in cur.fetchall():
         print(row)
+    cur.execute('SELECT question_id, count(question_id) AS subscription_count FROM subscriptions GROUP BY question_id')
+    for row in cur.fetchall():
+        retrieved_data.append(list(row))
+    print(retrieved_data)
 
     conn.commit()
     cur.close()
