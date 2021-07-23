@@ -218,7 +218,7 @@ def welcome():
 @app.route('/answer', methods=['GET','POST'])
 @cross_origin()
 def answer():
-    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c)
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c')
     print('conn done')
     cur = conn.cursor()
     print('cur done')
@@ -234,7 +234,7 @@ def answer():
 @app.route('/retrieve', methods=['GET', 'POST'])
 @cross_origin()
 def retrieve():
-    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c)
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c')
     print('conn done')
     cur = conn.cursor()
     print('cur done')
