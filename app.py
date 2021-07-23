@@ -56,7 +56,12 @@ def echo(update, context):
     cur.execute('INSERT INTO questions (question_text, question_answer) VALUES (%s, %s)', (update.message.text, 'no answer yet'))
     print('insert done')
 
+    cur.execute('SELECT * FROM questions')
+    for (question_id, question_text, question_answer) in cur:
+        print(question_id + '|' + question_text + '|' + question_answer)
+
     conn.commit()
+    cur.close()
     conn.close()
 
 def error(update, context):
