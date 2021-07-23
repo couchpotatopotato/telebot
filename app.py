@@ -120,12 +120,21 @@ def subscribe_questionid(update, context):
     cur = conn.cursor()
     print('cur done')
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
-    for chat_id in cur:
-        if chat_id[0] == update.message.chat.id:
-            update.message.reply_text('Already in subscription list!')
-            cur.close()
-            conn.close()
-            return ConversationHandler.END
+
+    # check if there is such a question id
+    if len(cur) == 0:
+        update.message.reply_text('No such question!')
+        cur.close()
+        conn.close()
+        return ConversationHandler.END
+    else:
+        # check if any of the chat id is equal to the user's (check if user is already in the subscription list)
+        for chat_id in cur:
+            if chat_id[0] == update.message.chat.id:
+                update.message.reply_text('Already in subscription list!')
+                cur.close()
+                conn.close()
+                return ConversationHandler.END
     
     cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', (update.message.chat.id, update.message.text))
     conn.commit()
@@ -140,21 +149,6 @@ def unsubscribe(update, context):
     update.message.reply_text('What is the question id that you want to unsubscribe from?')
     return UNSUBSCRIBE_QUESTIONID
 
-    """Remove user from subscription list"""
-    # check if group / private chat, and thus store group name / username respectively
-    if update.message.chat.type == 'group':
-        username_or_group = update.message.chat.title
-    else:
-        username_or_group = '@' + update.message.from_user.username
-
-    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.pop(update.message.chat.id, False):
-        # return group name / username not in subscription list
-        update.message.reply_text(
-            username_or_group + ' is not in the subscription list!')
-    else:
-        update.message.reply_text(
-            username_or_group + ' has been removed from the subscription list!')
-
 def unsubscribe_questionid(update, context):
     # check if the user is already in the subscription list
     conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
@@ -163,15 +157,23 @@ def unsubscribe_questionid(update, context):
     print('cur done')
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
     
+    # check if there is such a question id
+    if len(cur) == 0:
+        update.message.reply_text('No such question!')
+        cur.close()
+        conn.close()
+        return ConversationHandler.END
 
-    for chat_id in cur:
-        if chat_id[0] == update.message.chat.id:
-            cur.execute('DELETE FROM subscriptions WHERE chat_id = %s AND question_id = %s', (update.message.chat.id, update.message.text))
-            conn.commit()
-            cur.close()
-            conn.close()
-            update.message.reply_text(f"Deleted {update.message.from_user.username} from question {update.message.text}'s subscription list!")
-            return ConversationHandler.END
+    else:
+        # delete only if chat_id is in the subscription list
+        for chat_id in cur:
+            if chat_id[0] == update.message.chat.id:
+                cur.execute('DELETE FROM subscriptions WHERE chat_id = %s AND question_id = %s', (update.message.chat.id, update.message.text))
+                conn.commit()
+                cur.close()
+                conn.close()
+                update.message.reply_text(f"Deleted {update.message.from_user.username} from question {update.message.text}'s subscription list!")
+                return ConversationHandler.END
     
     update.message.reply_text(f"{update.message.from_user.username} is not in question {update.message.text}'s subscription list!")
     cur.close()
