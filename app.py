@@ -191,10 +191,6 @@ def sendmessage():
         subscriptionlist = '\n'.join(SUBSCRIPTION_CHAT_ID_TO_USERNAME.values())
         return 'sent to ' + str(len(SUBSCRIPTION_CHAT_ID_TO_USERNAME)) + ' persons/groups\n' + subscriptionlist
     
-@app.route('/answer')
-def answer():
-    answer = request.args.get('answer')
-
 
         
 @app.route('/')
