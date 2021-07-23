@@ -55,10 +55,6 @@ def echo(update, context):
 
     cur.execute('INSERT INTO questions (question_text, question_answer) VALUES (%s, %s)', (update.message.text, 'no answer yet'))
     print('insert done')
-    answer_question_text = "testing_answer"
-    question_id = 235
-    cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s', (answer_question_text, question_id))
-    print('update done')
 
     cur.execute('SELECT * FROM questions')
     for row in cur.fetchall():
@@ -188,5 +184,4 @@ def answer_question():
     conn.close()
   
 if __name__ == '__main__':
-    answer_question()
     app.run(threaded=True)
