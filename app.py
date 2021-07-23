@@ -122,7 +122,7 @@ def subscribe_questionid(update, context):
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
 
     # check if there is such a question id
-    if len(cur) == 0:
+    if len(cur.fetchall()) == 0:
         update.message.reply_text('No such question!')
         cur.close()
         conn.close()
@@ -158,7 +158,7 @@ def unsubscribe_questionid(update, context):
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
     
     # check if there is such a question id
-    if len(cur) == 0:
+    if len(cur.fetchall()) == 0:
         update.message.reply_text('No such question!')
         cur.close()
         conn.close()
