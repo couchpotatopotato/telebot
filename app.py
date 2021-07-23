@@ -90,16 +90,16 @@ def ask_getquestion(update, context):
         # process through NLP
         # if repetitive, prompt the user and suggest that they subscribe to the other question
 
-        options_yesno = {'inline_keyboard':[[{'text': 'yes', 'callback_data': update.message.text}], [{'text': 'no', 'callback_data': '0'}]]}
+        options_yesno = {'inline_keyboard':[[{'text': 'Yes'}], [{'text': 'No'}]]}
         bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
 
-        dp.add_handler(CallbackQueryHandler(callback=ask_sendquestion))
+        dp.add_handler(MessageHandler(Filters.text, ask_sendquestion))
 
 def ask_sendquestion(update, context):
     print('----------sending the question-----------')
     remove_unneeded_handlers()
 
-    if update.callback_query.data != '0':
+    if update.message.text != '0':
         cur.execute('INSERT INTO questions (question_text) VALUES (%s)', (update.callback_query.data))
         # check for errors
         update.message.reply_text('Your message has been added!')
@@ -140,7 +140,7 @@ def unsubscribe(update, context):
 
 def remove_unneeded_handlers():
     dp.remove_handler(MessageHandler(Filters.text, ask_getquestion))
-    dp.remove_handler(CallbackQueryHandler(callback=ask_sendquestion))
+    dp.remove_handler(MessageHandler(Filters.text, ask_sendquestion))
 
 # creates the flask app
 app = Flask(__name__)
