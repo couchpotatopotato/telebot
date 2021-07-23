@@ -21,7 +21,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-GET_QUESTION, SEND_QUESTION = range(2)
+GET_QUESTION, SEND_QUESTION, STARTED = range(3)
 # create dictionary storing chat_id and group title/username key-value pairs
 SUBSCRIPTION_CHAT_ID_TO_USERNAME = {}
 
@@ -38,7 +38,15 @@ def start(update, context):
     """Send a message and show the main menu when the command /start is issued."""
     print('-----START FUNCTION-----')
     update.message.reply_text('Welcome to the chongsters bot!')
-    help(update, context)  # to show the main menu
+    time.sleep(0.5)
+    update.message.reply_text('What is your meeting id?')
+    return STARTED
+
+def store_meetingid(update,context):
+    meetingid = update.message.text
+    # check if meeting id is inside the database
+    update.message.reply_text(f'Meeting ID {meetingid} stored!')
+    return ConversationHandler.END
 
 
 def help(update, context):
@@ -74,13 +82,11 @@ def ask(update, context):
 def ask_getquestion(update, context):
     print('-----getting the question-------')
 
-    # ensure that there is a question
-    question = update.message.text
     # process through NLP
     # if repetitive, prompt the user and suggest that they subscribe to the other question
 
     keyboard = [
-        [InlineKeyboardButton("Yes", callback_data='1')],
+        [InlineKeyboardButton("Yes", callback_data=update.message.text)],
         [InlineKeyboardButton("No", callback_data='2')],
     ]
 
@@ -152,7 +158,11 @@ app.config["CORS_HEADERS"] = "Content-Type"
 @app.before_first_request
 def main():
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(ConversationHandler(
+                    entry_points=[CommandHandler("start", start)],
+                    states={STARTED: [MessageHandler(Filters.text, store_meetingid)]},
+                    fallbacks=[]
+    ))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("subscribe", subscribe))
     dp.add_handler(CommandHandler("unsubscribe", unsubscribe))
@@ -162,7 +172,7 @@ def main():
                             SEND_QUESTION: [CallbackQueryHandler(ask_sendquestion)]
                     },
                     fallbacks=[]
-                    ))
+    ))
     
 
     # log all errors
