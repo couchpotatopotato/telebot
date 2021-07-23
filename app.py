@@ -6,6 +6,7 @@ from flask.templating import render_template
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters, Dispatcher, callbackqueryhandler, dispatcher
 from dotenv import load_dotenv
 from telegram.update import Update
+from flask_cors import CORS, cross_origin
 
 from flask import Flask, json, request
 from telegram import Bot
@@ -144,6 +145,8 @@ def remove_unneeded_handlers():
 
 # creates the flask app
 app = Flask(__name__)
+cors = CORS(app)
+app.config["CORS_HEADERS"] = "Content-Type"
 
 @app.before_first_request
 def main():
@@ -206,6 +209,7 @@ def welcome():
 
   
 @app.route('/answer', methods=['POST'])
+@cross_origin()
 def answer():
     input_json = request.get_json(force=True)
     answer_question_text = input_json["answer"]
@@ -213,6 +217,7 @@ def answer():
     cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s', (answer_question_text, question_id))
 
 @app.route('/retrieve', methods=['GET', 'POST'])
+@cross_origin()
 def retrieve():
     retrieved_data = []
     cur.execute("""SELECT questions.question_id, questions.question_text, questions.question_answer, 
