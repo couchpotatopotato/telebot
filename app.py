@@ -172,6 +172,7 @@ cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
 
+
 @app.before_first_request
 def main():
     # on different commands - answer in Telegram
