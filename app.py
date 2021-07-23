@@ -49,7 +49,6 @@ conn.query('SET GLOBAL wait_timeout=28800')
 def start(update, context):
     """Send a message and show the main menu when the command /start is issued."""
     print('-----START FUNCTION-----')
-    remove_unneeded_handlers()
     update.message.reply_text('Welcome to the chongsters bot!')
     help(update, context)  # to show the main menu
 
@@ -57,7 +56,6 @@ def start(update, context):
 def help(update, context):
     """Send the main menu when the command /help is issued."""
     print('-----HELP FUNCTION-----')
-    remove_unneeded_handlers()
     mainmenu = '''
     /ask - ask a question
     /subscribe - get notifications for any of the question
@@ -82,14 +80,11 @@ def help(update, context):
 
 def ask(update, context):
     print('----------ASK FUNCTION-------------')
-    remove_unneeded_handlers()
     update.message.reply_text('What is your question?')
-    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
-
+    return GET_QUESTION
 
 def ask_getquestion(update, context):
     print('-----getting the question-------')
-    remove_unneeded_handlers()
 
     # ensure that there is a question
     question = update.message.text
@@ -100,19 +95,15 @@ def ask_getquestion(update, context):
         # process through NLP
         # if repetitive, prompt the user and suggest that they subscribe to the other question
 
-        options_yesno = {'inline_keyboard': [
-            [{'text': 'Yes'}], [{'text': 'No'}]]}
-        bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' +
-                        update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
+        options_yesno = {'inline_keyboard':[[{'text': 'Yes', 'callback_data': update.message.text}], [{'text': 'No', 'callback_data': '0'}]]}
+        bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
 
-        dp.add_handler(MessageHandler(Filters.text, ask_sendquestion))
-
+        return SEND_QUESTION
 
 def ask_sendquestion(update, context):
     print('----------sending the question-----------')
-    remove_unneeded_handlers()
 
-    if update.message.text != '0':
+    if update.callback_query.data != '0':
         cur.execute('INSERT INTO questions (question_text) VALUES (%s)',
                     (update.callback_query.data))
         # check for errors
@@ -124,13 +115,11 @@ def ask_sendquestion(update, context):
 def error(update, context):
     """Log Errors caused by Updates."""
     print('-----ERROR FUNCTION-----')
-    remove_unneeded_handlers()
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 def subscribe(update, context):
     """Add users to subscription list to allow sending of messages later"""
-    remove_unneeded_handlers()
     if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.get(update.message.chat.id, False):
         # store group title/username for groups/private chat respectively as the value
         SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] = update.message.chat.title if update.message.chat.type == 'group' else '@' + \
@@ -145,7 +134,6 @@ def subscribe(update, context):
 
 def unsubscribe(update, context):
     """Remove user from subscription list"""
-    remove_unneeded_handlers()
     # check if group / private chat, and thus store group name / username respectively
     if update.message.chat.type == 'group':
         username_or_group = update.message.chat.title
@@ -159,12 +147,6 @@ def unsubscribe(update, context):
     else:
         update.message.reply_text(
             username_or_group + ' has been removed from the subscription list!')
-
-
-def remove_unneeded_handlers():
-    dp.remove_handler(MessageHandler(Filters.text, ask_getquestion))
-    dp.remove_handler(MessageHandler(Filters.text, ask_sendquestion))
-
 
 # creates the flask app
 app = Flask(__name__)
@@ -180,7 +162,14 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("subscribe", subscribe))
     dp.add_handler(CommandHandler("unsubscribe", unsubscribe))
-    dp.add_handler(CommandHandler("ask", ask))
+    dp.add_handler(ConversationHandler(
+                    entry_points=[CommandHandler("ask", ask)],
+                    states={GET_QUESTION: [MessageHandler(Filters.text, ask_getquestion)],
+                            SEND_QUESTION: [CallbackQueryHandler(callback=ask_sendquestion)]
+                    },
+                    fallbacks=[]
+                    ))
+    
 
     # log all errors
     dp.add_error_handler(error)
