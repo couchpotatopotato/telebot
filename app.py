@@ -59,10 +59,6 @@ def echo(update, context):
     cur.execute('SELECT * FROM questions')
     print('select done')
 
-    for (id, question, answer) in cur:
-        print(id + '|' + question + '|' + answer)
-    print('printing done')
-
     conn.commit()
     cur.close()
     conn.close()
