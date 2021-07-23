@@ -32,7 +32,7 @@ def help_cmd(update, context):
 def echo_cmd(update, context):
     """Echo the user message."""
     update.message.reply_text(update.message.text)
-    GLOBAL question_text
+    global question_text
     question_text = update.message.text
 def error(update, context):
     """Log Errors caused by Updates."""
