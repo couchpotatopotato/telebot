@@ -33,12 +33,11 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # connect to the database
-conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8',
-                               host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1', connect_timeout=1000)
+conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c)
 print('conn done')
 cur = conn.cursor()
 print('cur done')
-
+                               
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
@@ -221,14 +220,14 @@ def welcome():
     return "<h1>Welcome to THE CHONGSTERS server!!</h1>"
 
 
-@app.route('/answer', methods=['POST'])
+@app.route('/answer', methods=['GET','POST'])
 @cross_origin()
 def answer():
     input_json = request.get_json(force=True)
     answer_question_text = input_json["answer"]
     question_id = input_json["id"]
-    cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s',
-                (answer_question_text, question_id))
+    cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s',(answer_question_text, question_id))
+    conn.commit()
 
 
 @app.route('/retrieve', methods=['GET', 'POST'])
@@ -240,6 +239,7 @@ def retrieve():
     FROM subscriptions
     RIGHT JOIN questions on questions.question_id=subscriptions.question_id
     GROUP BY question_id""")
+    conn.commit()
     for row in cur.fetchall():
         dict = {}
         dict["question_id"] = row[0]
@@ -247,7 +247,7 @@ def retrieve():
         dict["question_answer"] = row[2]
         dict["subscription_count"] = row[3]
         retrieved_data.append(dict)
-    json_data = json.dumps(retrieved_data)
+    json_data = json.dumps(retrieved_data)            
     return json_data
 
 
