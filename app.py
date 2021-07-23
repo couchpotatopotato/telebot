@@ -56,6 +56,22 @@ def help(update, context):
     https://chong-testbot.herokuapp.com/
     '''
     update.message.reply_text(mainmenu)
+    
+    
+    cur.execute("""SELECT questions.question_id, questions.question_text, questions.question_answer, 
+    count(subscriptions.question_id) AS subscription_count 
+    FROM subscriptions
+    RIGHT JOIN questions on questions.question_id=subscriptions.question_id
+    GROUP BY question_id""")
+    for row in cur.fetchall():
+        dict = {}
+        dict["question_id"] = row[0]
+        dict["question_text"] = row[1]
+        dict["question_answer"] = row[2]
+        dict["subscription_count"] = row[3]
+        retrieved_data.append(dict)
+    json_data = json.dumps(retrieved_data)
+    print(json_data)
 
 # def echo(update, context):
 #     """Echo the user message."""
