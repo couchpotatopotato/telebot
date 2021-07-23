@@ -110,7 +110,7 @@ def error(update, context):
 
 def subscribe(update, context):
     """Get question id from user to subscribe"""
-    update.message.reply_text('What is the question id that you want to subscribe to?')
+    bot.sendMessage(chat_id=update.message.chat.id, text='What is the question id that you want to *subscribe* to?, parse_mode=telegram.ParseMode.MARKDOWN_V2')
     return SUBSCRIBE_QUESTIONID
 
 def subscribe_questionid(update, context):
@@ -147,7 +147,7 @@ def subscribe_questionid(update, context):
 
 def unsubscribe(update, context):
     """Get question id from user to unsubscribe"""
-    update.message.reply_text('What is the question id that you want to unsubscribe from?')
+    bot.sendMessage(chat_id=update.message.chat.id, text='What is the question id that you want to *unsubscribe* from?, parse_mode=telegram.ParseMode.MARKDOWN_V2')
     return UNSUBSCRIBE_QUESTIONID
 
 def unsubscribe_questionid(update, context):
