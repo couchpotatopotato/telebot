@@ -3,7 +3,7 @@ import logging
 from queue import Queue
 from threading import Thread
 from flask.templating import render_template
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispatcher, dispatcher
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters, Dispatcher, callbackqueryhandler, dispatcher
 from dotenv import load_dotenv
 from telegram.update import Update
 
@@ -11,16 +11,18 @@ from flask import Flask, json, request
 from telegram import Bot
 from telebot.credentials import bot_token, bot_user_name, URL
 
-from pprint import pprint
-
 import mysql.connector
+import time
 
+# define variables
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-SUBSCRIPTION_CHAT_ID_TO_USERNAME = {}   # create dictionary storing chat_id and group title/username key-value pairs
+
+# create dictionary storing chat_id and group title/username key-value pairs
+SUBSCRIPTION_CHAT_ID_TO_USERNAME = {} 
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -29,40 +31,77 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 load_dotenv()
 
+# connect to the database
+conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+print('conn done')
+cur = conn.cursor()
+print('cur done')
+
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
-    """Send a message when the command /start is issued."""
-    # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO START", reply_to_message_id=msg_id)
+    """Send a message and show the main menu when the command /start is issued."""
     print('-----START FUNCTION-----')
-    update.message.reply_text('Hi! I\'m created by THE CHONGSTERS. \n I will just repeat what you say OKAY')
+    update.message.reply_text('Welcome to the chongsters bot!')
+    help(update, context)  # to show the main menu
 
 def help(update, context):
-    """Send a message when the command /help is issued."""
+    """Send the main menu when the command /help is issued."""
     print('-----HELP FUNCTION-----')
-    update.message.reply_text('Help!')
+    mainmenu = '''
+    /ask - ask a question
+    /subscribe - get notifications for any of the question
 
-    # bot.sendMessage(chat_id=chat_id, text="YOU ARE ASKING ME TO HELP", reply_to_message_id=msg_id)
+    See all the questions here: 
+    https://chong-testbot.herokuapp.com/
+    '''
+    update.message.reply_text(mainmenu)
 
-def echo(update, context):
-    """Echo the user message."""
-    print('-----ECHO FUNCTION-----')
-    update.message.reply_text(update.message.text)
-    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
-    print('conn done')
-    cur = conn.cursor()
-    print('cur done')
+# def echo(update, context):
+#     """Echo the user message."""
+#     print('-----ECHO FUNCTION-----')
+#     update.message.reply_text(update.message.text)
+  
+#     cur.execute('INSERT INTO questions (question_text, question_answer) VALUES (%s, %s)', (update.message.text, 'no answer yet'))
+#     print('insert done')
 
-    cur.execute('INSERT INTO questions (question_text, question_answer) VALUES (%s, %s)', (update.message.text, 'no answer yet'))
-    print('insert done')
+#     cur.execute('SELECT * FROM questions')
+#     for row in cur.fetchall():
+#         print(row)
 
-    cur.execute('SELECT * FROM questions')
-    for row in cur.fetchall():
-        print(row)
+def ask(update, context):
+    print('----------ASK FUNCTION-------------')
+    update.message.reply_text('What is your question?')
+    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
 
-    conn.commit()
-    cur.close()
-    conn.close()
+def ask_getquestion(update, context):
+    print('-----getting the question-------')
+    dp.remove_handler(MessageHandler(Filters.text, ask_getquestion))
+
+    # ensure that there is a question
+    question = update.message.text
+    if question == '':
+        update.message.reply_text('Enter a question!')
+        help(update, context)
+    else:
+        # process through NLP
+        # if repetitive, prompt the user and suggest that they subscribe to the other question
+
+        options_yesno = {'inline_keyboard':[[{'text': 'yes', 'callback_data': update.message.text}], [{'text': 'no', 'callback_data': '0'}]]}
+        bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
+
+        dp.add_handler(CallbackQueryHandler(callback=ask_sendquestion))
+
+def ask_sendquestion(update, context):
+    print('----------sending the question-----------')
+    dp.remove_handler(CallbackQueryHandler(callback=ask_sendquestion))
+
+    if update.callback_query.data != '0':
+        cur.execute('INSERT INTO questions (question_text) VALUES (%s)', (update.callback_query.data))
+        # check for errors
+        update.message.reply_text('Your message has been added!')
+    else:
+        ask(update)
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -104,9 +143,6 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("subscribe", subscribe))
     dp.add_handler(CommandHandler("unsubscribe", unsubscribe))
-
-    # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
 
     # log all errors
     dp.add_error_handler(error)
@@ -152,20 +188,11 @@ def sendmessage():
         subscriptionlist = '\n'.join(SUBSCRIPTION_CHAT_ID_TO_USERNAME.values())
         return 'sent to ' + str(len(SUBSCRIPTION_CHAT_ID_TO_USERNAME)) + ' persons/groups\n' + subscriptionlist
     
+@app.route('/answer')
+def answer():
+    answer = request.args.get('answer')
 
-@app.route('/hello/', methods=['GET', 'POST'])
-def index():
-    message = 'Test'
-    # message = request.args.get('message')
 
-    # if there is no message submitted via HTML form yet, return None
-    if message is None:
-        return render_template('index.html')
-
-    # else return acknowledgement that message is received
-    else:
-        print(message)
-        return 'Sent to telebot!'
         
 @app.route('/')
 def welcome():
