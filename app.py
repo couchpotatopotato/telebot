@@ -52,7 +52,7 @@ def echo(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('INSERT INTO questions (questions_text) VALUES (%s)', update.message.text)
+    cur.execute('INSERT INTO questions (question_text) VALUES (%s)', update.message.text)
     print('insert done')
     cur.execute('SELECT * FROM questions')
     print('select done')
