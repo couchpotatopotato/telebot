@@ -31,11 +31,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 load_dotenv()
-
-conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
-print('conn done')
-cur = conn.cursor()
-print('cur done')
                                
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
@@ -222,16 +217,25 @@ def welcome():
 @app.route('/answer', methods=['GET','POST'])
 @cross_origin()
 def answer():
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    print('conn done')
+    cur = conn.cursor()
+    print('cur done')
     input_json = request.get_json(force=True)
     answer_question_text = input_json["answer"]
     question_id = input_json["id"]
     cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s',(answer_question_text, question_id))
     conn.commit()
-
+    cur.close()
+    conn.close()
 
 @app.route('/retrieve', methods=['GET', 'POST'])
 @cross_origin()
 def retrieve():
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    print('conn done')
+    cur = conn.cursor()
+    print('cur done')
     retrieved_data = []
     cur.execute("""SELECT questions.question_id, questions.question_text, questions.question_answer, 
     count(subscriptions.question_id) AS subscription_count 
@@ -247,6 +251,8 @@ def retrieve():
         dict["subscription_count"] = row[3]
         retrieved_data.append(dict)
     json_data = json.dumps(retrieved_data)
+    cur.close()
+    conn.close()
     return json_data
 
 
