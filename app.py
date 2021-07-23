@@ -13,7 +13,7 @@ from telebot.credentials import bot_token, bot_user_name, URL
 
 from pprint import pprint
 
-import mysql.connector as connector
+import mysql.connector
 
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
@@ -48,22 +48,18 @@ def echo(update, context):
     """Echo the user message."""
     print('-----ECHO FUNCTION-----')
     update.message.reply_text(update.message.text)
-    conn = connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    insert_sql = ("INSERT INTO questions "
-                "(question_text) "
-                "VALUES (%s)")
-    insert_sql_text = (update.message.text)
-    cur.execute(insert_sql, insert_sql_text)
+
+    cur.execute('INSERT INTO questions (question_text, question_answer) VALUES (%s, %s)', (update.message.text, 'no answer yet'))
     print('insert done')
     
-    select_sql = ("SELECT * FROM questions")
-    cur.execute(select_sql)
+    cur.execute('SELECT * FROM questions')
     print('select done')
 
-    for (id, question, answer) in cur:
+    for (id, question, answer) in cur.fetchall():
         print(id + '|' + question + '|' + answer)
     print('printing done')
 
