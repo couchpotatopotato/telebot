@@ -198,6 +198,17 @@ def answer():
 def welcome():
     return "<h1>Welcome to THE CHONGSTERS server!!</h1>"
 
-
+def answer_question():
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    cur = conn.cursor()
+    print("cur done!")
+    answer_question_text = "testing_answer"
+    question_id = 235
+    cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s', (answer_question_text, question_id))
+    print('update done')
+    conn.commit()
+    cur.close()
+    conn.close()
+  
 if __name__ == '__main__':
     app.run(threaded=True)
