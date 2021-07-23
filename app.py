@@ -119,7 +119,7 @@ def subscribe_questionid(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', update.message.text)
+    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
     for chat_id in cur:
         if chat_id[0] == update.message.chat.id:
             update.message.reply_text('Already in subscription list!')
@@ -127,7 +127,7 @@ def subscribe_questionid(update, context):
             conn.close()
             return ConversationHandler.END
     
-    cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', update.message.chat.id, update.message.text)
+    cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', (update.message.chat.id, update.message.text))
     conn.commit()
     cur.close()
     conn.close()
@@ -161,7 +161,7 @@ def unsubscribe_questionid(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', update.message.text)
+    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
     
 
     for chat_id in cur:
