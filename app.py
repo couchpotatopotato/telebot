@@ -69,10 +69,16 @@ def help(update, context):
 #     for row in cur.fetchall():
 #         print(row)
 
-def ask(update, context):
-    print('----------ASK FUNCTION-------------')
-    update.message.reply_text('What is your question?')
-    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
+def ask_sendquestion(update, context):
+    print('----------sending the question-----------')
+    dp.remove_handler(CallbackQueryHandler(callback=ask_sendquestion))
+
+    if update.callback_query.data != '0':
+        cur.execute('INSERT INTO questions (question_text) VALUES (%s)', (update.callback_query.data))
+        # check for errors
+        update.message.reply_text('Your message has been added!')
+    else:
+        ask(update)
 
 def ask_getquestion(update, context):
     print('-----getting the question-------')
@@ -92,16 +98,10 @@ def ask_getquestion(update, context):
 
         dp.add_handler(CallbackQueryHandler(callback=ask_sendquestion))
 
-def ask_sendquestion(update, context):
-    print('----------sending the question-----------')
-    dp.remove_handler(CallbackQueryHandler(callback=ask_sendquestion))
-
-    if update.callback_query.data != '0':
-        cur.execute('INSERT INTO questions (question_text) VALUES (%s)', (update.callback_query.data))
-        # check for errors
-        update.message.reply_text('Your message has been added!')
-    else:
-        ask(update)
+def ask(update, context):
+    print('----------ASK FUNCTION-------------')
+    update.message.reply_text('What is your question?')
+    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
 
 def error(update, context):
     """Log Errors caused by Updates."""
