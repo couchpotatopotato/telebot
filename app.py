@@ -103,6 +103,7 @@ def ask_sendquestion(update, context):
                     (update.callback_query.data))
         # check for errors
         update.message.reply_text('Your message has been added!')
+        bot.answer_callback_query(update.callback_query.id)
     else:
         ask(update)
 
