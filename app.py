@@ -96,7 +96,7 @@ def ask_storequestion(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('INSERT INTO questions (question_text, question_answer) VALUES (%s, %s)',(update.message.text, ''))
+    cur.execute('INSERT INTO questions (question_text) VALUES (%s)',(update.message.text))
     conn.commit()
 
     update.message.reply_text(f'Your question "{update.message.text}" has been added!')
