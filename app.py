@@ -47,6 +47,7 @@ def store_meetingid(update,context):
     meetingid = update.message.text
     # check if meeting id is inside the database
     update.message.reply_text(f'Meeting ID {meetingid} stored!')
+    help(update)
     return ConversationHandler.END
 
 
@@ -95,11 +96,8 @@ def ask_storequestion(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('INSERT INTO questions (question_text) VALUES (%s)',
-                (update.message.text))
+    cur.execute('INSERT INTO questions (question_text, question_answer) VALUES (%s, %s)',(update.message.text, ''))
     conn.commit()
-    cur.close()
-    conn.close()
 
     update.message.reply_text(f'Your question "{update.message.text}" has been added!')
 
