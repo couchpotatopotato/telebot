@@ -52,12 +52,22 @@ def echo(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('INSERT INTO questions (question_text) VALUES (%s)', update.message.text)
+    insert_sql = ("INSERT INTO questions "
+                "(question_text) "
+                "VALUES (%s)")
+    insert_sql_text = (update.message.text)
+    cur.execute(insert_sql, insert_sql_text)
     print('insert done')
-    cur.execute('SELECT * FROM questions')
+    
+    select_sql = ("SELECT * FROM questions")
+    cur.execute(select_sql)
     print('select done')
+
     for (id, question, answer) in cur:
         print(id + '|' + question + '|' + answer)
+    print('printing done')
+
+
     cur.close()
     conn.close()
 
