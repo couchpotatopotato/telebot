@@ -3,10 +3,9 @@ import logging
 from queue import Queue
 from threading import Thread
 from flask.templating import render_template
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters, Dispatcher, callbackqueryhandler, dispatcher
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, ConversationHandler, Filters, Dispatcher, callbackqueryhandler, dispatcher
 from dotenv import load_dotenv
 from telegram.update import Update
-from flask_cors import CORS, cross_origin
 
 from flask import Flask, json, request
 from telegram import Bot
@@ -21,6 +20,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
+GET_QUESTION, SEND_QUESTION = range(2)
 
 # create dictionary storing chat_id and group title/username key-value pairs
 SUBSCRIPTION_CHAT_ID_TO_USERNAME = {} 
@@ -76,7 +76,7 @@ def ask(update, context):
     print('----------ASK FUNCTION-------------')
     remove_unneeded_handlers()
     update.message.reply_text('What is your question?')
-    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
+    return GET_QUESTION
 
 def ask_getquestion(update, context):
     print('-----getting the question-------')
@@ -91,16 +91,16 @@ def ask_getquestion(update, context):
         # process through NLP
         # if repetitive, prompt the user and suggest that they subscribe to the other question
 
-        options_yesno = {'inline_keyboard':[[{'text': 'Yes'}], [{'text': 'No'}]]}
+        options_yesno = {'inline_keyboard':[[{'text': 'Yes', 'callback_data': update.message.text}], [{'text': 'No', 'callback_data': '0'}]]}
         bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
 
-        dp.add_handler(MessageHandler(Filters.text, ask_sendquestion))
+        return SEND_QUESTION
 
 def ask_sendquestion(update, context):
     print('----------sending the question-----------')
     remove_unneeded_handlers()
 
-    if update.message.text != '0':
+    if update.callback_query.data != '0':
         cur.execute('INSERT INTO questions (question_text) VALUES (%s)', (update.callback_query.data))
         # check for errors
         update.message.reply_text('Your message has been added!')
@@ -141,12 +141,10 @@ def unsubscribe(update, context):
 
 def remove_unneeded_handlers():
     dp.remove_handler(MessageHandler(Filters.text, ask_getquestion))
-    dp.remove_handler(MessageHandler(Filters.text, ask_sendquestion))
+    dp.remove_handler(CallbackQueryHandler(callback=ask_sendquestion))
 
 # creates the flask app
 app = Flask(__name__)
-cors = CORS(app)
-app.config["CORS_HEADERS"] = "Content-Type"
 
 @app.before_first_request
 def main():
@@ -155,7 +153,14 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("subscribe", subscribe))
     dp.add_handler(CommandHandler("unsubscribe", unsubscribe))
-    dp.add_handler(CommandHandler("ask", ask))
+    dp.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("ask", ask)],
+        states={GET_QUESTION: [MessageHandler(Filters.text, ask_getquestion)],
+                SEND_QUESTION: [CallbackQueryHandler(callback=ask_sendquestion)]
+        },
+        fallbacks=[]
+    ))
+    
 
     # log all errors
     dp.add_error_handler(error)
@@ -209,7 +214,6 @@ def welcome():
 
   
 @app.route('/answer', methods=['POST'])
-@cross_origin()
 def answer():
     input_json = request.get_json(force=True)
     answer_question_text = input_json["answer"]
@@ -217,7 +221,6 @@ def answer():
     cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s', (answer_question_text, question_id))
 
 @app.route('/retrieve', methods=['GET', 'POST'])
-@cross_origin()
 def retrieve():
     retrieved_data = []
     cur.execute("""SELECT questions.question_id, questions.question_text, questions.question_answer, 
