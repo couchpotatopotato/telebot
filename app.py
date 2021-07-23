@@ -171,6 +171,21 @@ def index():
 def welcome():
     return "<h1>Welcome to THE CHONGSTERS server!!</h1>"
 
+def answer_question(update, context):
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    cur = conn.cursor()
+    cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s', (answer_question_text, question_id))
+    print('update done')
+    conn.commit()
+    cur.close()
+    conn.close()
 
+@app.route('/answerquestion', method=['GET', 'POST'])
+def answerquestion():
+    global answer_question_text
+    answer_question_text = "testing_answering"
+    global question_id 
+    question_id = 245
+  
 if __name__ == '__main__':
     app.run(threaded=True)
