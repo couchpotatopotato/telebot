@@ -13,6 +13,8 @@ from telebot.credentials import bot_token, bot_user_name, URL
 
 from pprint import pprint
 
+import mysql.connector as connector
+
 PORT = int(os.environ.get('PORT', '8443'))
 TOKEN = bot_token
 bot = Bot(token=TOKEN)
@@ -46,6 +48,14 @@ def echo(update, context):
     """Echo the user message."""
     print('-----ECHO FUNCTION-----')
     update.message.reply_text(update.message.text)
+    conn = connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    cur = conn.cursor()
+    cur.execute('INSERT INTO questions (questions_text) VALUES (%s)', update.message.text)
+    cur.execute('SELECT * FROM questions')
+    for (id, question, answer) in cur:
+        print(id + '|' + question + '|' + answer)
+    cur.close()
+    conn.close()
 
 def error(update, context):
     """Log Errors caused by Updates."""
