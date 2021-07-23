@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # connect to the database
-conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1', connect_timeout=1000)
+conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1', connect_timeout=28800)
 print('conn done')
 cur = conn.cursor()
 print('cur done')
