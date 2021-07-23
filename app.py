@@ -3,13 +3,13 @@ import logging
 from queue import Queue
 from threading import Thread
 from flask.templating import render_template
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, ConversationHandler, Filters, Dispatcher, callbackqueryhandler, dispatcher
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, ConversationHandler, Filters, Dispatcher, dispatcher
 from dotenv import load_dotenv
 from telegram.update import Update
 from flask_cors import CORS, cross_origin
 
 from flask import Flask, json, request
-from telegram import Bot
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telebot.credentials import bot_token, bot_user_name, URL
 
 import mysql.connector
@@ -72,6 +72,16 @@ def help(update, context):
 #     for row in cur.fetchall():
 #         print(row)
 
+def button(update: Update, context: CallbackContext) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    query.answer()
+
+    query.edit_message_text(text=f"Selected option: {query.data}")
+
 
 def ask(update, context):
     print('----------ASK FUNCTION-------------')
@@ -83,27 +93,32 @@ def ask_getquestion(update, context):
 
     # ensure that there is a question
     question = update.message.text
-    if question == '':
-        update.message.reply_text('Enter a question!')
-        help(update, context)
-    else:
-        # process through NLP
-        # if repetitive, prompt the user and suggest that they subscribe to the other question
+    # process through NLP
+    # if repetitive, prompt the user and suggest that they subscribe to the other question
 
-        options_yesno = {'inline_keyboard':[[{'text': 'Yes', 'callback_data': update.message.text}], [{'text': 'No', 'callback_data': '0'}]]}
-        bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
+    keyboard = [
+        [InlineKeyboardButton("Yes", callback_data='1')],
+        [InlineKeyboardButton("No", callback_data='2')],
+    ]
 
-        return SEND_QUESTION
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # options_yesno = {'inline_keyboard':
+    #             [[{'text': 'Yes', 'callback_data': update.message.text}], [{'text': 'No', 'callback_data': '0'}]]}
+    bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=reply_markup)
+
+    return SEND_QUESTION
 
 def ask_sendquestion(update, context):
     print('----------sending the question-----------')
+
+    update.callback_query.answer()
 
     if update.callback_query.data != '0':
         cur.execute('INSERT INTO questions (question_text) VALUES (%s)',
                     (update.callback_query.data))
         # check for errors
-        update.message.reply_text('Your message has been added!')
-        bot.answer_callback_query(update.callback_query.id)
+        update.edit_message_text(text='Your message has been added!')
     else:
         ask(update)
 
