@@ -47,7 +47,7 @@ def store_meetingid(update,context):
     meetingid = update.message.text
     # check if meeting id is inside the database
     update.message.reply_text(f'Meeting ID {meetingid} stored!')
-    help(update)
+    help(update, context)
     return ConversationHandler.END
 
 
