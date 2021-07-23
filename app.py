@@ -100,7 +100,6 @@ def ask_getquestion(update, context):
 def ask(update, context):
     print('----------ASK FUNCTION-------------')
     update.message.reply_text('What is your question?')
-    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
     print('----------ASK FUNCTION DONE----------')
 
 def error(update, context):
@@ -144,6 +143,7 @@ def main():
     dp.add_handler(CommandHandler("subscribe", subscribe))
     dp.add_handler(CommandHandler("unsubscribe", unsubscribe))
     dp.add_handler(CommandHandler("ask", ask))
+    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
 
     # log all errors
     dp.add_error_handler(error)
