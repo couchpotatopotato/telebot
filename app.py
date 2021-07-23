@@ -82,20 +82,21 @@ def ask_sendquestion(update, context):
 
 def ask_getquestion(update, context):
     print('-----getting the question-------')
+    update.message.reply_text('ok')
 
-    # ensure that there is a question
-    question = update.message.text
-    if question == '':
-        update.message.reply_text('Enter a question!')
-        help(update, context)
-    else:
-        # process through NLP
-        # if repetitive, prompt the user and suggest that they subscribe to the other question
+    # # ensure that there is a question
+    # question = update.message.text
+    # if question == '':
+    #     update.message.reply_text('Enter a question!')
+    #     help(update, context)
+    # else:
+    #     # process through NLP
+    #     # if repetitive, prompt the user and suggest that they subscribe to the other question
 
-        options_yesno = {'inline_keyboard':[[{'text': 'yes', 'callback_data': update.message.text}], [{'text': 'no', 'callback_data': '0'}]]}
-        bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
+    #     options_yesno = {'inline_keyboard':[[{'text': 'yes', 'callback_data': update.message.text}], [{'text': 'no', 'callback_data': '0'}]]}
+    #     bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
 
-        dp.add_handler(CallbackQueryHandler(callback=ask_sendquestion))
+    #     dp.add_handler(CallbackQueryHandler(callback=ask_sendquestion))
 
 def ask(update, context):
     print('----------ASK FUNCTION-------------')
