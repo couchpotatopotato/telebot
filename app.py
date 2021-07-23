@@ -119,15 +119,16 @@ def subscribe_questionid(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
-
+    
     # check if there is such a question id
+    cur.execute('SELECT * FROM questions WHERE question_id = %s', (update.message.text,))
     if len(cur.fetchall()) == 0:
         update.message.reply_text('No such question!')
         cur.close()
         conn.close()
         return ConversationHandler.END
     else:
+        cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
         # check if any of the chat id is equal to the user's (check if user is already in the subscription list)
         for chat_id in cur:
             if chat_id[0] == update.message.chat.id:
@@ -155,9 +156,9 @@ def unsubscribe_questionid(update, context):
     print('conn done')
     cur = conn.cursor()
     print('cur done')
-    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
     
     # check if there is such a question id
+    cur.execute('SELECT * FROM questions WHERE question_id = %s', (update.message.text,))
     if len(cur.fetchall()) == 0:
         update.message.reply_text('No such question!')
         cur.close()
@@ -165,6 +166,7 @@ def unsubscribe_questionid(update, context):
         return ConversationHandler.END
 
     else:
+        cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (update.message.text,))
         # delete only if chat_id is in the subscription list
         for chat_id in cur:
             if chat_id[0] == update.message.chat.id:
