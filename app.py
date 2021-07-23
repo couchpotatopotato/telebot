@@ -102,6 +102,7 @@ def ask(update, context):
     print('----------ASK FUNCTION-------------')
     update.message.reply_text('What is your question?')
     dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
+    print('----------ASK FUNCTION DONE----------')
 
 def error(update, context):
     """Log Errors caused by Updates."""
