@@ -9,6 +9,7 @@ from telegram.update import Update
 from flask import Flask, json, request
 from telegram import Bot
 from telebot.credentials import bot_token, bot_user_name,URL
+from flask_mysqldb import MySQL
 
 global bot
 global TOKEN
@@ -31,13 +32,24 @@ def help_cmd(update, context):
 def echo_cmd(update, context):
     """Echo the user message."""
     update.message.reply_text(update.message.text)
+    GLOBAL question_text
+    question_text = update.message.text
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
     
     
+    
 #FLASK APP
 app = Flask(__name__)
+
+app.config['MYSQL_HOST'] = 'us-cdbr-east-04.cleardb.com'
+app.config['MYSQL_USER'] = 'bb75a740c4787a'
+app.config['MYSQL_PASSWORD'] = '6ae814c8'
+app.config['MYSQL_DB'] = 'heroku_aff68423aab93c1'
+
+mysql = MySQL(app)
+
 
 @app.route('/setwebhook', methods=['GET', 'POST'])
 def set_webhook():
@@ -66,6 +78,11 @@ def respond():
     #chat_id = update.message.chat.id
     #msg_id = update.message.message_id
     #text = update.message.text.encode('utf-8').decode()
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO questions(question_text) VALUES (%s, %s)",
+                (question_text))
+    mysql.connection.commit()
+    cur.close()
 
 
 @app.route('/hello/', methods=['GET', 'POST'])
