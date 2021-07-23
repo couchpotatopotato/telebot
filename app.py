@@ -198,27 +198,37 @@ def sendmessage():
         subscriptionlist = '\n'.join(SUBSCRIPTION_CHAT_ID_TO_USERNAME.values())
         return 'sent to ' + str(len(SUBSCRIPTION_CHAT_ID_TO_USERNAME)) + ' persons/groups\n' + subscriptionlist
     
-@app.route('/answer')
-def answer():
-    answer = request.args.get('answer')
-
 
         
 @app.route('/')
 def welcome():
     return "<h1>Welcome to THE CHONGSTERS server!!</h1>"
 
-def answer_question():
-    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
-    cur = conn.cursor()
-    print("cur done!")
-    answer_question_text = "testing_answer"
-    question_id = 235
+  
+@app.route('/answer', method=['POST'])
+def answer():
+    input_json = request.get_json(force=True)
+    answer_question_text = input_json["answer"]
+    question_id = input_json["id"]
     cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s', (answer_question_text, question_id))
-    print('update done')
-    conn.commit()
-    cur.close()
-    conn.close()
+
+@app.route('/retrieve', method=['GET', 'POST'])
+def retrieve():
+    retrieved_data = []
+    cur.execute("""SELECT questions.question_id, questions.question_text, questions.question_answer, 
+    count(subscriptions.question_id) AS subscription_count 
+    FROM subscriptions
+    RIGHT JOIN questions on questions.question_id=subscriptions.question_id
+    GROUP BY question_id""")
+    for row in cur.fetchall():
+        dict = {}
+        dict["question_id"] = row[0]
+        dict["question_text"] = row[1]
+        dict["question_answer"] = row[2]
+        dict["subscription_count"] = row[3]
+        retrieved_data.append(dict)
+    json_data = json.dumps(retrieved_data)
+    return json_data
   
 if __name__ == '__main__':
     app.run(threaded=True)
