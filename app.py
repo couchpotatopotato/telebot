@@ -13,7 +13,6 @@ from telebot.credentials import bot_token, bot_user_name, URL
 
 import mysql.connector
 import time
-import json
 
 # define variables
 PORT = int(os.environ.get('PORT', '8443'))
@@ -43,12 +42,14 @@ print('cur done')
 def start(update, context):
     """Send a message and show the main menu when the command /start is issued."""
     print('-----START FUNCTION-----')
+    remove_unneeded_handlers()
     update.message.reply_text('Welcome to the chongsters bot!')
     help(update, context)  # to show the main menu
 
 def help(update, context):
     """Send the main menu when the command /help is issued."""
     print('-----HELP FUNCTION-----')
+    remove_unneeded_handlers()
     mainmenu = '''
     /ask - ask a question
     /subscribe - get notifications for any of the question
@@ -57,7 +58,7 @@ def help(update, context):
     https://chong-testbot.herokuapp.com/
     '''
     update.message.reply_text(mainmenu)
-    
+
 # def echo(update, context):
 #     """Echo the user message."""
 #     print('-----ECHO FUNCTION-----')
@@ -70,9 +71,33 @@ def help(update, context):
 #     for row in cur.fetchall():
 #         print(row)
 
+def ask(update, context):
+    print('----------ASK FUNCTION-------------')
+    remove_unneeded_handlers()
+    update.message.reply_text('What is your question?')
+    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
+
+def ask_getquestion(update, context):
+    print('-----getting the question-------')
+    remove_unneeded_handlers()
+
+    # ensure that there is a question
+    question = update.message.text
+    if question == '':
+        update.message.reply_text('Enter a question!')
+        help(update, context)
+    else:
+        # process through NLP
+        # if repetitive, prompt the user and suggest that they subscribe to the other question
+
+        options_yesno = {'inline_keyboard':[[{'text': 'yes', 'callback_data': update.message.text}], [{'text': 'no', 'callback_data': '0'}]]}
+        bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
+
+        dp.add_handler(CallbackQueryHandler(callback=ask_sendquestion))
+
 def ask_sendquestion(update, context):
     print('----------sending the question-----------')
-    dp.remove_handler(CallbackQueryHandler(callback=ask_sendquestion))
+    remove_unneeded_handlers()
 
     if update.callback_query.data != '0':
         cur.execute('INSERT INTO questions (question_text) VALUES (%s)', (update.callback_query.data))
@@ -81,54 +106,15 @@ def ask_sendquestion(update, context):
     else:
         ask(update)
 
-def ask_getquestion(update, context):
-    print('-----getting the question-------')
-    update.message.reply_text('ok')
-    
-    
-    retrieved_data = []
-    cur.execute("""SELECT questions.question_id, questions.question_text, questions.question_answer, 
-    count(subscriptions.question_id) AS subscription_count 
-    FROM subscriptions
-    RIGHT JOIN questions on questions.question_id=subscriptions.question_id
-    GROUP BY question_id""")
-    for row in cur.fetchall():
-        dict = {}
-        dict["question_id"] = row[0]
-        dict["question_text"] = row[1]
-        dict["question_answer"] = row[2]
-        dict["subscription_count"] = row[3]
-        retrieved_data.append(dict)
-    json_data = json.dumps(retrieved_data)
-    print(json_data)
-
-
-    # # ensure that there is a question
-    # question = update.message.text
-    # if question == '':
-    #     update.message.reply_text('Enter a question!')
-    #     help(update, context)
-    # else:
-    #     # process through NLP
-    #     # if repetitive, prompt the user and suggest that they subscribe to the other question
-
-    #     options_yesno = {'inline_keyboard':[[{'text': 'yes', 'callback_data': update.message.text}], [{'text': 'no', 'callback_data': '0'}]]}
-    #     bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=options_yesno)
-
-    #     dp.add_handler(CallbackQueryHandler(callback=ask_sendquestion))
-
-def ask(update, context):
-    print('----------ASK FUNCTION-------------')
-    update.message.reply_text('What is your question?')
-    print('----------ASK FUNCTION DONE----------')
-
 def error(update, context):
     """Log Errors caused by Updates."""
     print('-----ERROR FUNCTION-----')
+    remove_unneeded_handlers()
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def subscribe(update, context):
     """Add users to subscription list to allow sending of messages later"""
+    remove_unneeded_handlers()
     if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.get(update.message.chat.id, False):
         # store group title/username for groups/private chat respectively as the value
         SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] = update.message.chat.title if update.message.chat.type == 'group' else '@' + update.message.from_user.username
@@ -139,6 +125,7 @@ def subscribe(update, context):
 
 def unsubscribe(update, context):
     """Remove user from subscription list"""
+    remove_unneeded_handlers()
     # check if group / private chat, and thus store group name / username respectively
     if update.message.chat.type == 'group':
         username_or_group = update.message.chat.title
@@ -151,6 +138,9 @@ def unsubscribe(update, context):
     else:
         update.message.reply_text(username_or_group + ' has been removed from the subscription list!')
 
+def remove_unneeded_handlers():
+    dp.remove_handler(MessageHandler(Filters.text, ask_getquestion))
+    dp.remove_handler(CallbackQueryHandler(callback=ask_sendquestion))
 
 # creates the flask app
 app = Flask(__name__)
@@ -158,7 +148,6 @@ app = Flask(__name__)
 @app.before_first_request
 def main():
     # on different commands - answer in Telegram
-    dp.add_handler(MessageHandler(Filters.text, ask_getquestion))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("subscribe", subscribe))
