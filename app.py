@@ -122,6 +122,9 @@ def subscribe(update, context):
         update.message.reply_text(
             SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] + ' is already in the subscription list!')
 
+def subscribe_meetingid(update, context):
+    return True
+
 def unsubscribe(update, context):
     """Remove user from subscription list"""
     # check if group / private chat, and thus store group name / username respectively
@@ -137,6 +140,9 @@ def unsubscribe(update, context):
     else:
         update.message.reply_text(
             username_or_group + ' has been removed from the subscription list!')
+
+def unsubscribe_meetingid(update, context):
+    return True
 
 # creates the flask app
 app = Flask(__name__)
@@ -164,7 +170,7 @@ def main():
     ))
     dp.add_handler(ConversationHandler(
         entry_points=[CommandHandler("unsubscribe", unsubscribe)],
-        states={UNSUBSCRIBE_MEETINGID: [MessageHandler(Filters.text, unsubcribe_meetingid)]},
+        states={UNSUBSCRIBE_MEETINGID: [MessageHandler(Filters.text, unsubscribe_meetingid)]},
         fallbacks=[]
     ))
 
