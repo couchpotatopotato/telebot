@@ -49,9 +49,13 @@ def echo(update, context):
     print('-----ECHO FUNCTION-----')
     update.message.reply_text(update.message.text)
     conn = connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    print('conn done')
     cur = conn.cursor()
+    print('cur done')
     cur.execute('INSERT INTO questions (questions_text) VALUES (%s)', update.message.text)
+    print('insert done')
     cur.execute('SELECT * FROM questions')
+    print('select done')
     for (id, question, answer) in cur:
         print(id + '|' + question + '|' + answer)
     cur.close()
