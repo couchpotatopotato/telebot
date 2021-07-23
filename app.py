@@ -57,8 +57,8 @@ def echo(update, context):
     print('insert done')
 
     cur.execute('SELECT * FROM questions')
-    for (question_id, question_text, question_answer) in cur:
-        print(question_id + '|' + question_text + '|' + question_answer)
+    for row in cur.fetchall():
+        print(row)
 
     conn.commit()
     cur.close()
