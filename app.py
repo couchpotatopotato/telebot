@@ -22,7 +22,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-STORING_QUESTION, SUBSCRIBE_MEETINGID, UNSUBSCRIBE_MEETINGID, STARTED = range(4)
+STORING_QUESTION, SUBSCRIBE_QUESTIONID, UNSUBSCRIBE_QUESTIONID, STARTED = range(4)
 # create dictionary storing chat_id and group title/username key-value pairs
 SUBSCRIPTION_CHAT_ID_TO_USERNAME = {}
 
@@ -92,7 +92,7 @@ def ask_storequestion(update, context):
     # bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=reply_markup)
     
     # update the question into the database
-    conn = mysql.connector.connect(us0er='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
     print('conn done')
     cur = conn.cursor()
     print('cur done')
@@ -109,22 +109,37 @@ def error(update, context):
 
 
 def subscribe(update, context):
-    """Add users to subscription list to allow sending of messages later"""
-    if not SUBSCRIPTION_CHAT_ID_TO_USERNAME.get(update.message.chat.id, False):
-        # store group title/username for groups/private chat respectively as the value
-        SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] = update.message.chat.title if update.message.chat.type == 'group' else '@' + \
-            update.message.from_user.username
-        update.message.reply_text(
-            SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] + ' has been added to the subscription list!')
+    """Get question id from user to subscribe"""
+    update.message.reply_text('What is the question id that you want to subscribe to?')
+    return SUBSCRIBE_QUESTIONID
 
-    else:
-        update.message.reply_text(
-            SUBSCRIPTION_CHAT_ID_TO_USERNAME[update.message.chat.id] + ' is already in the subscription list!')
+def subscribe_questionid(update, context):
+    # check if the user is already in the subscription list
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    print('conn done')
+    cur = conn.cursor()
+    print('cur done')
+    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', update.message.text)
+    for chat_id in cur:
+        if chat_id[0] == update.message.chat.id:
+            update.message.reply_text('Already in subscription list!')
+            cur.close()
+            conn.close()
+            return ConversationHandler.END
+    
+    cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', update.message.chat.id, update.message.text)
+    conn.commit()
+    cur.close()
+    conn.close()
 
-def subscribe_meetingid(update, context):
-    return True
+    update.message.reply_text(f"Added {update.message.from_user.username} to question {update.message.text}'s subscription list!")
+    return ConversationHandler.END
 
 def unsubscribe(update, context):
+    """Get question id from user to unsubscribe"""
+    update.message.reply_text('What is the question id that you want to unsubscribe from?')
+    return UNSUBSCRIBE_QUESTIONID
+
     """Remove user from subscription list"""
     # check if group / private chat, and thus store group name / username respectively
     if update.message.chat.type == 'group':
@@ -140,9 +155,29 @@ def unsubscribe(update, context):
         update.message.reply_text(
             username_or_group + ' has been removed from the subscription list!')
 
-def unsubscribe_meetingid(update, context):
-    return True
+def unsubscribe_questionid(update, context):
+    # check if the user is already in the subscription list
+    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    print('conn done')
+    cur = conn.cursor()
+    print('cur done')
+    cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', update.message.text)
+    
 
+    for chat_id in cur:
+        if chat_id[0] == update.message.chat.id:
+            cur.execute('DELETE FROM subscriptions WHERE chat_id = %s AND question_id = %s', (update.message.chat.id, update.message.text))
+            conn.commit()
+            cur.close()
+            conn.close()
+            update.message.reply_text(f"Deleted {update.message.from_user.username} from question {update.message.text}'s subscription list!")
+            return ConversationHandler.END
+    
+    update.message.reply_text(f"{update.message.from_user.username} is not in question {update.message.text}'s subscription list!")
+    cur.close()
+    conn.close()
+    return ConversationHandler.END
+            
 # creates the flask app
 app = Flask(__name__)
 cors = CORS(app)
@@ -164,12 +199,12 @@ def main():
     ))
     dp.add_handler(ConversationHandler(
         entry_points=[CommandHandler("subscribe", subscribe)],
-        states={SUBSCRIBE_MEETINGID: [MessageHandler(Filters.text, subscribe_meetingid)]},
+        states={SUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, subscribe_questionid)]},
         fallbacks=[]
     ))
     dp.add_handler(ConversationHandler(
         entry_points=[CommandHandler("unsubscribe", unsubscribe)],
-        states={UNSUBSCRIBE_MEETINGID: [MessageHandler(Filters.text, unsubscribe_meetingid)]},
+        states={UNSUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, unsubscribe_questionid)]},
         fallbacks=[]
     ))
 
