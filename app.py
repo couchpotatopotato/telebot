@@ -208,13 +208,14 @@ def welcome():
     return "<h1>Welcome to THE CHONGSTERS server!!</h1>"
 
   
-@app.route('/answer', methods=['POST'])
+@app.route('/answer', methods=['GET','POST'])
 @cross_origin()
 def answer():
     input_json = request.get_json(force=True)
     answer_question_text = input_json["answer"]
     question_id = input_json["id"]
     cur.execute('UPDATE questions SET question_answer= %s WHERE question_id= %s', (answer_question_text, question_id))
+    return "ok"
 
 @app.route('/retrieve', methods=['GET', 'POST'])
 @cross_origin()
