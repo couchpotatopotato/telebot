@@ -48,7 +48,6 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-
 # functions for /start
 def start(update, context):
     """Send a message and show the main menu when the command /start is issued."""
@@ -81,6 +80,10 @@ def start_other_handlers():
         states={UNSUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, unsubscribe_questionid)]},
         fallbacks=[]
     ))
+    
+    # Start the thread
+    thread = Thread(target=dp.start, name='dispatcher')
+    thread.start()
 
 def start_meetingid(update,context):        # for more than 1 meetings
     meetingid = update.message.text
@@ -94,12 +97,13 @@ def start_meetingid(update,context):        # for more than 1 meetings
 def help(update, context):
     """Send the main menu when the command /help is issued."""
     mainmenu = '''/ask - ask a question
-    /subscribe - get notifications for any of the question
-    /help - show this menu again
+/subscribe - get notifications for any of the question
+/unsubscribe - remove any previous subscriptions
+/help - show this menu again
 
-    See all the questions here: 
-    https://chongsters-web.herokuapp.com/
-    '''
+See all the questions here: 
+https://chongsters-web.herokuapp.com/
+'''
     update.message.reply_text(mainmenu)
 
 
@@ -188,8 +192,8 @@ def unsubscribe_questionid(update, context):
     closedb(commit=False)
     return ConversationHandler.END
 
-          
-            
+
+
 # Flask application and routes
 app = Flask(__name__)
 cors = CORS(app)
