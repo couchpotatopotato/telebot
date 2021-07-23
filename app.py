@@ -160,7 +160,7 @@ def main():
     dp.add_handler(ConversationHandler(
                     entry_points=[CommandHandler("ask", ask)],
                     states={GET_QUESTION: [MessageHandler(Filters.text, ask_getquestion)],
-                            SEND_QUESTION: [CallbackQueryHandler(callback=ask_sendquestion)]
+                            SEND_QUESTION: [CallbackQueryHandler(ask_sendquestion)]
                     },
                     fallbacks=[]
                     ))
