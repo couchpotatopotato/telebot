@@ -38,14 +38,9 @@ conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8',
 print('conn done')
 cur = conn.cursor()
 print('cur done')
-conn.query('SET GLOBAL connect_timeout=28800')
-conn.query('SET GLOBAL interactive_timeout=28800')
-conn.query('SET GLOBAL wait_timeout=28800')
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
-
-
 def start(update, context):
     """Send a message and show the main menu when the command /start is issued."""
     print('-----START FUNCTION-----')
