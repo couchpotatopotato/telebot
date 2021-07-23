@@ -92,7 +92,7 @@ def ask_storequestion(update, context):
     # bot.sendMessage(chat_id=update.message.chat.id, text='Your question is "' + update.message.text + '". Send this to the presenter?', reply_markup=reply_markup)
     
     # update the question into the database
-    conn = mysql.connector.connect(user='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
+    conn = mysql.connector.connect(us0er='bb75a740c4787a', password='6ae814c8', host='us-cdbr-east-04.cleardb.com', database='heroku_aff68423aab93c1')
     print('conn done')
     cur = conn.cursor()
     print('cur done')
@@ -100,6 +100,7 @@ def ask_storequestion(update, context):
     conn.commit()
 
     update.message.reply_text(f'Your question "{update.message.text}" has been added!')
+    return ConversationHandler.END
 
 def error(update, context):
     """Log Errors caused by Updates."""
