@@ -234,6 +234,7 @@ def answer():
     cur.execute('SELECT question_text FROM questions WHERE question_id = %s', (question_id,))
     question = cur.fetchone()[0]
     print(cur.fetchone())
+    print(question)
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (question_id,))
     print(cur.fetchall())
 
