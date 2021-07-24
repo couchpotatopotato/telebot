@@ -229,7 +229,7 @@ def answer():
     question = cur.fetchone()[0]
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (question_id,))
     records = cur.fetchall()
-    print('records ' + records)
+    print(records)
 
     # notify each subscriber of the answer to the question
     if len(records) != 0:
