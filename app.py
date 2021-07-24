@@ -95,6 +95,7 @@ def ask_storequestion(update, context):
     
     # update the question into the database
     connectdb()
+    cur.execute('SET @@auto_increment_increment=1')
     cur.execute('INSERT INTO questions (question_text) VALUES (%s)',(update.message.text,))
     closedb(commit=True)
 
@@ -126,6 +127,7 @@ def subscribe_questionid(update, context):
                 closedb(commit=False)
                 return ConversationHandler.END
     
+    cur.execute('SET @@auto_increment_increment=1')
     cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', (update.message.chat.id, update.message.text))
     closedb(commit=True)
 
@@ -229,14 +231,11 @@ def answer():
     question = cur.fetchone()[0]
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (question_id,))
     records = cur.fetchall()
-    print(records)
 
     # notify each subscriber of the answer to the question
     if len(records) != 0:
-        print('inside if')
         for (chat_id,) in records:
             chat_id = str(chat_id)
-            print('chat_id ' + chat_id)
             bot.sendMessage(chat_id=chat_id, text=f'The question "{question}" has been answered! Here is the answer:')
             time.sleep(1)
             bot.sendMessage(chat_id=chat_id, text=answer_question_text)
