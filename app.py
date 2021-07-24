@@ -81,7 +81,7 @@ https://chongsters-web.herokuapp.com/
 
 # functions for /ask
 def ask(update, context):
-    update.message.reply_text('What is your question?')
+    update.message.reply_text('What is your question? P.S. If the telebot does not reply with confirmation after you send the message, please try a few more times!')
     return STORING_QUESTION
 
 def ask_storequestion(update, context):
