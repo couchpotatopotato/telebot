@@ -1,3 +1,4 @@
 # telebot
 welcome to the chongsters
-there's nothing to see here. fuck off
+
+We used the Python-Telegram-Bot library to implement our Telegram bot. Our backend is coded in Python, that used a Flask application framework to connect to our website.
