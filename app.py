@@ -20,7 +20,7 @@ TOKEN = bot_token
 bot = Bot(token=TOKEN)
 update_queue = Queue()
 dp = Dispatcher(bot, update_queue)
-STORING_QUESTION, SUBSCRIBE_QUESTIONID, UNSUBSCRIBE_QUESTIONID, STARTED, NOT_STARTED = range(5)
+STORING_QUESTION, SUBSCRIBE_QUESTIONID, UNSUBSCRIBE_QUESTIONID, STARTED = range(4)
 
 # define function for connecting / closing database
 def connectdb():
@@ -174,9 +174,8 @@ app.config["CORS_HEADERS"] = "Content-Type"
 def main():
     # on different commands - answer in Telegram
     dp.add_handler(ConversationHandler(
-                    entry_points=[CommandHandler("start", start), MessageHandler(Filters.text, force_start)],
-                    states={NOT_STARTED: [CommandHandler("start", start)],
-                            STARTED: [MessageHandler(Filters.text, start_meetingid)]},
+                    entry_points=[CommandHandler("start", start)],
+                    states={STARTED: [MessageHandler(Filters.text, start_meetingid)]},
                     fallbacks=[]
     ))
     dp.add_handler(CommandHandler("help", help))
