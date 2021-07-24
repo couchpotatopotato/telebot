@@ -235,6 +235,7 @@ def answer():
     if len(records) != 0:
         print('inside if')
         for (chat_id,) in records:
+            chat_id = str(chat_id)
             print('chat_id ' + chat_id)
             bot.sendMessage(chat_id=chat_id, text=f'The question "{question}" has been answered! Here is the answer:')
             time.sleep(1)
