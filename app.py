@@ -56,11 +56,6 @@ def start(update, context):
     update.message.reply_text('What is your meeting id?')
     return STARTED
 
-def force_start(update, context):
-    """If any other messages are shown, force the user to use /start"""
-    update.message.reply_text('Use /start to start the bot.')
-    return NOT_STARTED
-
 def start_meetingid(update,context):        # for more than 1 meetings
     meetingid = update.message.text
     update.message.reply_text(f'Meeting ID {meetingid} stored!')
@@ -233,18 +228,18 @@ def answer():
     # get list of subscriptions and the text of the question from DB
     cur.execute('SELECT question_text FROM questions WHERE question_id = %s', (question_id,))
     question = cur.fetchone()[0]
-    print(question)
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (question_id,))
     records = cur.fetchall()
     print(records)
 
     # notify each subscriber of the answer to the question
     if len(records) != 0:
-        for chat_id in cur:
+        for (chat_id,) in cur:
+            print(chat_id)
             bot.sendMessage(chat_id=chat_id, text=f'The question "{question}" has been answered! Here is the answer:')
             time.sleep(1)
             bot.sendMessage(chat_id=chat_id, text=answer_question_text)
-            
+
     closedb(commit=True)
     return "ok"
 
