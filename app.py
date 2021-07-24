@@ -229,12 +229,13 @@ def answer():
     question = cur.fetchone()[0]
     cur.execute('SELECT chat_id FROM subscriptions WHERE question_id = %s', (question_id,))
     records = cur.fetchall()
-    print(records)
+    print('records ' + records)
 
     # notify each subscriber of the answer to the question
     if len(records) != 0:
-        for (chat_id,) in cur:
-            print(chat_id)
+        print('inside if')
+        for (chat_id,) in records:
+            print('chat_id ' + chat_id)
             bot.sendMessage(chat_id=chat_id, text=f'The question "{question}" has been answered! Here is the answer:')
             time.sleep(1)
             bot.sendMessage(chat_id=chat_id, text=answer_question_text)
