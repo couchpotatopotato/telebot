@@ -113,7 +113,7 @@ def ask_storequestion(update, context):
             InlineKeyboardButton("Back to main menu", callback_data=help),
         ]
     ]
-    reply_markup = json.dump(InlineKeyboardMarkup(keyboard))
+    reply_markup = json.dumps(InlineKeyboardMarkup(keyboard))
     print("markup")
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
     return ConversationHandler.END
