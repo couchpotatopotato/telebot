@@ -114,12 +114,12 @@ def after_ask(update: Update, context: CallbackContext) -> None:
     keyboard = [
         [
             InlineKeyboardButton("Ask another question", callback_data="1"),
-            InlineKeyboardButton("Back to main menu", callback_data="2"),
+            InlineKeyboardButton("Go back to main menu", callback_data="2"),
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     print("markup")
-    update.message.reply_text(reply_markup=reply_markup)
+    update.message.reply_text("Do you want to:",reply_markup=reply_markup)
 
 
 def button(update: Update, context: CallbackContext) -> None:
