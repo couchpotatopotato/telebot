@@ -125,6 +125,7 @@ def after_ask(update: Update, context: CallbackContext) -> None:
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
+    print("query")
     choice = query.data
     if choice == '1':
         ask(update,context)
