@@ -2,7 +2,7 @@ import os
 import logging
 from queue import Queue
 from threading import Thread
-from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, Filters, Dispatcher
+from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, Filters, Dispatcher,  CallbackQueryHandler, CallbackContext
 from telegram.update import Update
 from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
@@ -106,18 +106,30 @@ def ask_storequestion(update, context):
     cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', (update.message.chat.id, asker_qn))
     update.message.reply_text(f"""Your Question Id is {asker_qn}. You have been automatically added to its subscription list.""")
     closedb(commit=True)
-    
-    keyboard = [
-        [
-            InlineKeyboardButton("Ask another question", callback_data=start),
-            InlineKeyboardButton("Back to main menu", callback_data=help),
-        ]
-    ]
-    reply_markup = json.dumps(InlineKeyboardMarkup(keyboard))
-    print("markup")
-    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+    after_ask
+    print("after ask started")
     return ConversationHandler.END
 
+def after_ask(update: Update, context: CallbackContext) -> None:
+    keyboard = [
+        [
+            InlineKeyboardButton("Ask another question", callback_data="1"),
+            InlineKeyboardButton("Back to main menu", callback_data="2"),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    print("markup")
+    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
+
+def button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+    choice = query.data
+    if choice == '1':
+        ask
+    if choice == '2':
+        help
 
 
 # functions for /subscribe
