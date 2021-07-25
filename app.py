@@ -114,6 +114,7 @@ def ask_storequestion(update, context):
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    print("markup")
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
     return ConversationHandler.END
 
