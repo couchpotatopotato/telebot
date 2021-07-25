@@ -224,7 +224,7 @@ def main():
         states={UNSUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, unsubscribe_questionid)]},
         fallbacks=[]
     ))
-    dp.add_handler(CallbackQueryHandler(button))
+    dp.add_handler(ConversationHandler(entry_points=[CallbackQueryHandler(button)]))
 
     # log all errors
     dp.add_error_handler(error)
