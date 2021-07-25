@@ -100,6 +100,12 @@ def ask_storequestion(update, context):
     closedb(commit=True)
 
     update.message.reply_text(f'Your question "{update.message.text}" has been added!')
+    connectdb()
+    cur.execute('SELECT MAX(question_id) FROM questions')
+    asker_qn = cur.fetchone()[0]
+    cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', (update.message.chat.id, asker_qn))
+    update.message.reply_text(f"""Your Question Id is {asker_qn}. You have been automatically added to its subscription list.""")
+    closedb(commit=True)
     return ConversationHandler.END
 
 
