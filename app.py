@@ -106,7 +106,7 @@ def ask_storequestion(update, context):
     cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', (update.message.chat.id, asker_qn))
     update.message.reply_text(f"""Your Question Id is {asker_qn}. You have been automatically added to its subscription list.""")
     closedb(commit=True)
-    after_ask
+    after_ask()
     print("after ask started")
     return ConversationHandler.END
 
@@ -127,9 +127,9 @@ def button(update: Update, context: CallbackContext) -> None:
     query.answer()
     choice = query.data
     if choice == '1':
-        ask
+        ask()
     if choice == '2':
-        help
+        help()
 
 
 # functions for /subscribe
