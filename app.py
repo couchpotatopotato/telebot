@@ -8,7 +8,7 @@ from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
 
 from flask import Flask, json, request
-from telegram import Bot, ParseMode
+from telegram import Bot, ParseMode,  InlineKeyboardButton, InlineKeyboardMarkup
 from telebot.credentials import bot_token
 
 import mysql.connector
@@ -106,6 +106,15 @@ def ask_storequestion(update, context):
     cur.execute('INSERT INTO subscriptions (chat_id, question_id) VALUES(%s, %s)', (update.message.chat.id, asker_qn))
     update.message.reply_text(f"""Your Question Id is {asker_qn}. You have been automatically added to its subscription list.""")
     closedb(commit=True)
+    
+    keyboard = [
+        [
+            InlineKeyboardButton("Ask another question", callback_data=start),
+            InlineKeyboardButton("Back to main menu", callback_data=help),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('Please choose:', reply_markup=reply_markup)
     return ConversationHandler.END
 
 
