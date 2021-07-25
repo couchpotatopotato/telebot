@@ -119,7 +119,7 @@ def after_ask(update: Update, context: CallbackContext) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     print("markup")
-    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+    update.message.reply_text(reply_markup=reply_markup)
 
 
 def button(update: Update, context: CallbackContext) -> None:
@@ -224,6 +224,7 @@ def main():
         states={UNSUBSCRIBE_QUESTIONID: [MessageHandler(Filters.text, unsubscribe_questionid)]},
         fallbacks=[]
     ))
+    dp.add_handler(CallbackQueryHandler(button))
 
     # log all errors
     dp.add_error_handler(error)
